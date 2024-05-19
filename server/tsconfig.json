@@ -1,0 +1,25 @@
+{
+  "compilerOptions": {
+    "rootDirs": [
+      "src"
+    ],
+    "lib": [
+      "es2020"
+    ],
+    "target": "es2020",
+    "module": "commonjs",
+    "moduleResolution": "Node",
+    "esModuleInterop": true,
+    "types": [
+      "node"
+    ],
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./src/*"]
+    },
+  },
+  "exclude": [
+    "node_modules"
+  ]
+}
+
