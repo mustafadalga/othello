@@ -13,7 +13,7 @@ export default function Board() {
     const [ noMoveCount, setNoMoveCount ] = useState<number>(0);
     const [ board, setBoard ] = useState<Stones>(createBoard);
     const opponent = activeGamer == Gamer.BLACK ? Gamer.WHITE : Gamer.BLACK;
-    const opponentStones = board.filter(cell => cell.value === opponent)
+    const opponentStones = board.filter(cell => cell.gamer === opponent)
     const hints = createHints(board, opponentStones, activeGamer);
     const hasValidMove: boolean = !!hints.length
     const hasConsecutiveNoMove: boolean = noMoveCount == 2;
@@ -31,7 +31,7 @@ export default function Board() {
                 if (reversedStoneIndex.includes(index)) {
                     return {
                         ...cell,
-                        value: activeGamer
+                        gamer: activeGamer
                     }
                 }
                 return cell;

@@ -26,7 +26,7 @@ function topLeft(board: Stones, opponentStones: Stones, activeGamer: Gamer): num
         const toTopLeftIndex: number = (index - DIMENSION - 1);
         const isFirstCol: boolean = colIndex === 0;
 
-        if (isFirstCol || board[toTopLeftIndex]?.value) continue;
+        if (isFirstCol || board[toTopLeftIndex]?.gamer) continue;
 
         let isActiveGamerLinked: boolean = false;
         let toBottomRight: Stone | undefined = stone;
@@ -34,11 +34,11 @@ function topLeft(board: Stones, opponentStones: Stones, activeGamer: Gamer): num
         while (!isActiveGamerLinked) {
             toBottomRight = board.find(item => item.row == (toBottomRight?.row || 0) + 1 && item.col == (toBottomRight?.col || 0) + 1);
 
-            if (!toBottomRight?.value) {
+            if (!toBottomRight?.gamer) {
                 break;
             }
 
-            if (toBottomRight?.value == activeGamer) {
+            if (toBottomRight?.gamer == activeGamer) {
                 isActiveGamerLinked = true;
             }
         }
@@ -60,7 +60,7 @@ function top(board: Stones, opponentStones: Stones, activeGamer: Gamer): number[
         const index: number = (stone.row) * DIMENSION + (stone.col);
         const toTopIndex: number = index - DIMENSION;
 
-        if (board[toTopIndex].value) continue;
+        if (board[toTopIndex].gamer) continue;
 
         let isActiveGamerLinked: boolean = false;
         let toBottomRow: number = stone.row;
@@ -72,11 +72,11 @@ function top(board: Stones, opponentStones: Stones, activeGamer: Gamer): number[
             }
             const toBottomRowItem = board.find(item => item.row == toBottomRow && item.col == stone.col);
 
-            if (!toBottomRowItem?.value) {
+            if (!toBottomRowItem?.gamer) {
                 break;
             }
 
-            if (toBottomRowItem.value == activeGamer) {
+            if (toBottomRowItem.gamer == activeGamer) {
                 isActiveGamerLinked = true;
             }
         }
@@ -102,7 +102,7 @@ function topRight(board: Stones, opponentStones: Stones, activeGamer: Gamer): nu
         const toTopRightIndex: number = (index - DIMENSION + 1)
         const isFirstRowOrLastCol: boolean = rowIndex === 0 || colIndex === DIMENSION - 1;
 
-        if (isFirstRowOrLastCol || board[toTopRightIndex]?.value) continue;
+        if (isFirstRowOrLastCol || board[toTopRightIndex]?.gamer) continue;
 
         let isActiveGamerLinked: boolean = false;
         let toTop: Stone | undefined = stone;
@@ -110,11 +110,11 @@ function topRight(board: Stones, opponentStones: Stones, activeGamer: Gamer): nu
         while (!isActiveGamerLinked) {
             toTop = board.find(item => item.row == (toTop?.row || 0) + 1 && item.col == (toTop?.col || 0) - 1);
 
-            if (!toTop?.value) {
+            if (!toTop?.gamer) {
                 break;
             }
 
-            if (toTop?.value == activeGamer) {
+            if (toTop?.gamer == activeGamer) {
                 isActiveGamerLinked = true;
             }
         }
@@ -135,16 +135,16 @@ function right(board: Stones, opponentStones: Stones, activeGamer: Gamer): numbe
         const index: number = (stone.row) * DIMENSION + (stone.col);
         const toRightIndex: number = index + 1;
 
-        if (board[toRightIndex].value) continue;
+        if (board[toRightIndex].gamer) continue;
 
         let isActiveGamerLinked: boolean = false;
         let toLeft: Stone | undefined = stone;
 
         while (!isActiveGamerLinked) {
             toLeft = board.find(item => item.row == (stone?.row || 0) && item.col == (toLeft?.col || 0) - 1);
-            if (!toLeft?.value) break;
+            if (!toLeft?.gamer) break;
 
-            if (toLeft?.value == activeGamer) {
+            if (toLeft?.gamer == activeGamer) {
                 isActiveGamerLinked = true
             }
         }
@@ -168,7 +168,7 @@ function bottomRight(board: Stones, opponentStones: Stones, activeGamer: Gamer):
         const index: number = rowIndex * DIMENSION + colIndex;
         const toBottomRightIndex: number = index + DIMENSION + 1;
 
-        if (board[toBottomRightIndex]?.value) continue;
+        if (board[toBottomRightIndex]?.gamer) continue;
 
         let isActiveGamerLinked: boolean = false;
         let toBottomRight: Stone | undefined = stone;
@@ -176,10 +176,10 @@ function bottomRight(board: Stones, opponentStones: Stones, activeGamer: Gamer):
         while (!isActiveGamerLinked) {
             toBottomRight = board.find(item => item.row == (toBottomRight?.row || 0) - 1 && item.col == (toBottomRight?.col || 0) - 1);
 
-            if (!toBottomRight?.value) {
+            if (!toBottomRight?.gamer) {
                 break;
             }
-            if (toBottomRight?.value == activeGamer) {
+            if (toBottomRight?.gamer == activeGamer) {
                 isActiveGamerLinked = true
             }
         }
@@ -201,7 +201,7 @@ function bottom(board: Stones, opponentStones: Stones, activeGamer: Gamer): numb
         const index: number = (stone.row) * DIMENSION + (stone.col);
         const toBottomIndex: number = index + DIMENSION;
 
-        if (board[toBottomIndex].value) continue;
+        if (board[toBottomIndex].gamer) continue;
 
         let isActiveGamerLinked: boolean = false;
         let toTopRow: number = stone.row;
@@ -212,10 +212,10 @@ function bottom(board: Stones, opponentStones: Stones, activeGamer: Gamer): numb
                 break
             }
             const toTopRowItem = board.find(item => item.row == toTopRow && item.col == stone.col);
-            if (!toTopRowItem?.value) {
+            if (!toTopRowItem?.gamer) {
                 break
             }
-            if (toTopRowItem?.value == activeGamer) {
+            if (toTopRowItem?.gamer == activeGamer) {
                 isActiveGamerLinked = true;
             }
         }
@@ -237,7 +237,7 @@ function bottomLeft(board: Stones, opponentStones: Stones, activeGamer: Gamer): 
         const index: number = stone.row * DIMENSION + stone.col;
         const toBottomLeftIndex: number = index + DIMENSION - 1;
 
-        if (board[toBottomLeftIndex]?.value) continue;
+        if (board[toBottomLeftIndex]?.gamer) continue;
 
         let isActiveGamerLinked: boolean = false;
 
@@ -245,9 +245,9 @@ function bottomLeft(board: Stones, opponentStones: Stones, activeGamer: Gamer): 
 
         while (!isActiveGamerLinked) {
             toBottomLeft = board.find(item => item.row == (toBottomLeft?.row || 0) - 1 && item.col == (toBottomLeft?.col || 0) + 1);
-            if (!toBottomLeft?.value) break;
+            if (!toBottomLeft?.gamer) break;
 
-            if (toBottomLeft?.value == activeGamer) {
+            if (toBottomLeft?.gamer == activeGamer) {
                 isActiveGamerLinked = true;
             }
         }
@@ -269,16 +269,16 @@ function left(board: Stones, opponentStones: Stones, activeGamer: Gamer): number
 
         const toLeftIndex: number = index - 1;
 
-        if (board[toLeftIndex].value) continue;
+        if (board[toLeftIndex].gamer) continue;
 
         let isActiveGamerLinked: boolean = false;
         let toRight: Stone | undefined = stone;
 
         while (!isActiveGamerLinked) {
             toRight = board.find(item => item.row == (stone?.row || 0) && item.col == (toRight?.col || 0) + 1);
-            if (!toRight?.value) break;
+            if (!toRight?.gamer) break;
 
-            if (toRight?.value == activeGamer) {
+            if (toRight?.gamer == activeGamer) {
                 isActiveGamerLinked = true
             }
         }

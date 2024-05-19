@@ -19,7 +19,7 @@ export default function createBoard(): Stones {
                 board.push({
                     row,
                     col,
-                    value: initialStones[property as keyof typeof initialStones] || null,
+                    gamer: initialStones[property as keyof typeof initialStones] || null,
                 })
                 continue;
             }
@@ -27,7 +27,7 @@ export default function createBoard(): Stones {
             board.push({
                 row,
                 col,
-                value: initialStones[property as keyof typeof initialStones],
+                gamer: initialStones[property as keyof typeof initialStones],
             })
         }
     }

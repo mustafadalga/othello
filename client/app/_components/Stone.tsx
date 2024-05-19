@@ -1,7 +1,7 @@
 import { Gamer } from "@/_enums";
 
 export default function Stone({ gamer }: { gamer: Gamer }) {
-    const bgColor = gamer == "black" ? "bg-[radial-gradient(circle_at_30%_30%,rgba(105,105,105),rgba(0,0,0)_70%)]" : "bg-[radial-gradient(circle_at_30%_30%,rgb(255,255,255),rgb(230,230,230)_70%)]"
+    const bgColor = gamer == Gamer.BLACK ? "bg-[radial-gradient(circle_at_30%_30%,rgba(105,105,105),rgba(0,0,0)_70%)]" : "bg-[radial-gradient(circle_at_30%_30%,rgb(255,255,255),rgb(230,230,230)_70%)]"
 
     return (
         <div
