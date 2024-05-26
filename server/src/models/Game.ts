@@ -2,16 +2,18 @@ import { Schema, model } from "mongoose";
 import { Gamer, GamerStatus } from "@/enums";
 
 const schema = new Schema({
-    id: { type: Schema.Types.ObjectId, auto: true },
-    blackGamer: { type: String, required: true },
-    whiteGamer: { type: String, required: true },
+    gamers: [ {
+        id: { type: String, required: true },
+        color: { type: String, enum: Gamer, required: true },
+        status: { type: String, enum: GamerStatus, required: true, default: GamerStatus.CONNECTED }
+    } ],
     isGameFinished: { type: Boolean, default: false },
     isGameStarted: { type: Boolean, default: false },
-    moveOrder: { type: String, enum: Gamer, default: Gamer.BLACK },
+    moveOrder: { type: String, default: null },
     winnerGamer: { type: String, default: null },
-    blackGamerStatus: { type: String, enum: GamerStatus, default: GamerStatus.CONNECTED },
-    whiteGamerStatus: { type: String, enum: GamerStatus, default: GamerStatus.CONNECTED },
-    moves: [{ type: Schema.Types.ObjectId, ref: 'Move' }],
+    playAgainstComputer: { type: Boolean, default: false },
+    moves: [ { type: Schema.Types.ObjectId, ref: 'Move' } ],
+    exitGamer: { type: String, default: null },
 });
 
 export default model('Game', schema)
