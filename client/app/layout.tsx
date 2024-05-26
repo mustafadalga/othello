@@ -1,8 +1,6 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
 import "./globals.css";
-
-const inter = Inter({ subsets: ["latin"] });
+import RootProvider from "@/_providers/RootProvider";
 
 export const metadata: Metadata = {
   title: "Othello",
@@ -16,7 +14,11 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${inter.className} bg-gray-100 text-gray-800`}>{children}</body>
+      <body className="w-full h-full min-h-screen max-w-screen-2xl mx-auto p-4 font-sans bg-gray-100 text-gray-800">
+      <RootProvider>
+        {children}
+      </RootProvider>
+      </body>
     </html>
   );
 }
