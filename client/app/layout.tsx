@@ -14,7 +14,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className="w-full h-full min-h-screen max-w-screen-2xl mx-auto p-4 font-sans bg-gray-100 text-gray-800">
+      <body className="w-full h-full min-h-screen max-w-screen-2xl mx-auto py-10 px-4 font-sans bg-gray-100 text-gray-800">
       <RootProvider>
         {children}
       </RootProvider>
