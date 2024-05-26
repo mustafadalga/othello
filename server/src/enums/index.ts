@@ -1,10 +1,19 @@
 export enum Gamer {
-    BLACK = "black",
-    WHITE = "white"
+    BLACK = "BLACK",
+    WHITE = "WHITE"
 }
 
 export enum GamerStatus {
-    CONNECTED = "connected",
-    DISCONNECTED = "disconnected",
-    EXITED = "exited"
+    CONNECTED = "CONNECTED",
+    DISCONNECTED = "DISCONNECTED",
+    EXITED = "EXITED"
+}
+
+export enum SubscriptionMessages {
+    GAME_STARTED = "GAME_STARTED",
+    GAME_FINISHED = "GAME_FINISHED",
+    GAME_MOVE = "GAME_MOVE",
+    GAME_EXIT = "GAME_EXIT",
+    GAMER_CONNECTED = "GAMER_CONNECTED",
+    GAMER_DISCONNECTED = "GAMER_DISCONNECTED"
 }
