@@ -1,8 +1,8 @@
 import { Stone, Stones } from "@/_types";
-import { Gamer } from "@/_enums";
+import { EGamer } from "@/_enums";
 import { DIMENSION } from "@/_constants";
 
-export default function createHints(board: Stones, opponentStones: Stones, activeGamer: Gamer) {
+export default function createHints(board: Stones, opponentStones: Stones, activeGamer: EGamer) {
     return [
         ...topLeft(board, opponentStones, activeGamer),
         ...top(board, opponentStones, activeGamer),
@@ -15,7 +15,7 @@ export default function createHints(board: Stones, opponentStones: Stones, activ
     ]
 }
 
-function topLeft(board: Stones, opponentStones: Stones, activeGamer: Gamer): number[] {
+function topLeft(board: Stones, opponentStones: Stones, activeGamer: EGamer): number[] {
     const hints: number[] = [];
     for (const stone of opponentStones) {
         if (stone.row == 0) continue;
@@ -51,7 +51,7 @@ function topLeft(board: Stones, opponentStones: Stones, activeGamer: Gamer): num
     return hints;
 }
 
-function top(board: Stones, opponentStones: Stones, activeGamer: Gamer): number[] {
+function top(board: Stones, opponentStones: Stones, activeGamer: EGamer): number[] {
     const hints: number[] = [];
 
     for (const stone of opponentStones) {
@@ -89,7 +89,7 @@ function top(board: Stones, opponentStones: Stones, activeGamer: Gamer): number[
     return hints;
 }
 
-function topRight(board: Stones, opponentStones: Stones, activeGamer: Gamer): number[] {
+function topRight(board: Stones, opponentStones: Stones, activeGamer: EGamer): number[] {
     const hints: number[] = [];
 
     for (const stone of opponentStones) {
@@ -127,7 +127,7 @@ function topRight(board: Stones, opponentStones: Stones, activeGamer: Gamer): nu
     return hints;
 }
 
-function right(board: Stones, opponentStones: Stones, activeGamer: Gamer): number[] {
+function right(board: Stones, opponentStones: Stones, activeGamer: EGamer): number[] {
     const hints: number[] = [];
 
     for (const stone of opponentStones) {
@@ -157,7 +157,7 @@ function right(board: Stones, opponentStones: Stones, activeGamer: Gamer): numbe
     return hints;
 }
 
-function bottomRight(board: Stones, opponentStones: Stones, activeGamer: Gamer): number[] {
+function bottomRight(board: Stones, opponentStones: Stones, activeGamer: EGamer): number[] {
     const hints: number[] = [];
 
     for (const stone of opponentStones) {
@@ -192,7 +192,7 @@ function bottomRight(board: Stones, opponentStones: Stones, activeGamer: Gamer):
     return hints;
 }
 
-function bottom(board: Stones, opponentStones: Stones, activeGamer: Gamer): number[] {
+function bottom(board: Stones, opponentStones: Stones, activeGamer: EGamer): number[] {
     const hints: number[] = [];
 
     for (const stone of opponentStones) {
@@ -228,7 +228,7 @@ function bottom(board: Stones, opponentStones: Stones, activeGamer: Gamer): numb
     return hints;
 }
 
-function bottomLeft(board: Stones, opponentStones: Stones, activeGamer: Gamer): number[] {
+function bottomLeft(board: Stones, opponentStones: Stones, activeGamer: EGamer): number[] {
     const hints: number[] = [];
 
     for (const stone of opponentStones) {
@@ -260,7 +260,7 @@ function bottomLeft(board: Stones, opponentStones: Stones, activeGamer: Gamer): 
     return hints;
 }
 
-function left(board: Stones, opponentStones: Stones, activeGamer: Gamer): number[] {
+function left(board: Stones, opponentStones: Stones, activeGamer: EGamer): number[] {
     const hints: number[] = [];
 
     for (const stone of opponentStones) {
