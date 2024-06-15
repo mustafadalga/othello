@@ -10,26 +10,27 @@ enum GamerStatus {
 }
 
 type Query {
-    gameByID(_id:ID!,gamerID:String!): Game
-    movesByGameID(gameID:ID!): [MoveWithID]
+    gameByID(_id:ID!): Game
+    movesByGameID(gameID:ID!): [Move]
+    gamersStoneCountByGameID(gameID:ID!):GamersStoneCount
 }
 
 type Mutation {
-    createGame(playAgainstComputer:Boolean):Game
+    createGame:Game
     addPlayer(data:AddPlayer!):Game
-    createMove(move:UserMove!):MoveWithID
-    finishGame(data:FinishGame!):Game
-    exitGame(data:ExitGame!):Game
+    updateGame(data:UpdateGameInput!):Game
+    createMoves(moves:[UserMove]!):[Move]
     restartGame(_id:ID!):Game
 }
 
 type Subscription {
-    gameMove(gameID: ID!): Move
-    gameStarted:GameStarted
-    gameExit:GameExit
-    gameFinished:GameFinished
-    gamerConnected:GamerConnection
-    gamerDisconnected:GamerConnection
+    gameStarted(gameID:ID!):Game!
+    gameRestarted(gameID:ID!):Game!
+    gameUpdated(gameID:ID!):Game!
+    gameMoved(gameID: ID!): [Move]
+    gamersStoneCountUpdated(gameID:ID!):GamersStoneCount
+    gamerConnected:GamerConnection!
+    gamerDisconnected:GamerConnection!
 }
 
 type Game {
@@ -39,23 +40,17 @@ type Game {
     isGameStarted:Boolean!
     moveOrder:String
     winnerGamer:String
-    playAgainstComputer:Boolean
-    exitGamer:String
+    exitGamer:String,
 }
 
 
 type IGamers {
     id:ID!
     color:Gamer!
-    status:GamerStatus
+    status:GamerStatus!,
+    canMove:Boolean!
 }
 
-type MoveWithID {
-    row:Int!
-    col:Int!
-    gamer:Gamer!
-    gameID:ID!
-}
 type Move {
     row:Int!
     col:Int!
@@ -63,21 +58,18 @@ type Move {
     gameID:ID!
 }
 
-
-type GameStarted {
-    gameStarted:Boolean
-}
-
-type GameExit {
-    gameExit:String!
-}
-
-type GameFinished {
-    gameFinished:Boolean
-}
-
 type GamerConnection {
     userID:String!
+}
+
+type StoneCount {
+    BLACK: Int!
+    WHITE: Int!
+}
+
+type GamersStoneCount {
+    game:Game!,
+    count: StoneCount!
 }
 
 input UserMove {
@@ -88,17 +80,24 @@ input UserMove {
 }
 
 input AddPlayer {
-    roomID:ID!
+    gameID:ID!
     gamerID:ID!
 }
 
-input FinishGame {
-    _id:ID!
-    winnerGamer:String!
+input GamerInput {
+    id: ID
+    color: Gamer
+    status: GamerStatus
+    canMove: Boolean
 }
 
-input ExitGame {
-    roomID:ID!
-    gamerID:ID!
+input UpdateGameInput {
+    _id: ID!
+    isGameStarted: Boolean
+    isGameFinished: Boolean
+    moveOrder: String
+    winnerGamer: String
+    exitGamer: String
+    gamers: [GamerInput]
 }
 `
