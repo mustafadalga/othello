@@ -1,7 +1,7 @@
 import { Stone, Stones } from "@/_types";
-import { Gamer } from "@/_enums";
+import { EGamer } from "@/_enums";
 
-export default function reverseOpponentStones(board: Stones, move: Stone, activeGamer: Gamer): Stones {
+export default function reverseOpponentStones(board: Stones, move: Stone, activeGamer: EGamer): Stones {
     return [
         ...reverseTopLeft(board, move, activeGamer),
         ...reverseTop(board, move, activeGamer),
@@ -14,7 +14,7 @@ export default function reverseOpponentStones(board: Stones, move: Stone, active
     ]
 }
 
-function reverseTopLeft(board: Stones, move: Stone, activeGamer: Gamer): Stones {
+function reverseTopLeft(board: Stones, move: Stone, activeGamer: EGamer): Stones {
     let opponentStones: Stones = [];
     let toBottomRight: Stone | undefined = board.find(item => item.row == move.row + 1 && item.col == move.col + 1);
     if (!toBottomRight?.gamer || toBottomRight?.gamer == activeGamer) return opponentStones;
@@ -42,7 +42,7 @@ function reverseTopLeft(board: Stones, move: Stone, activeGamer: Gamer): Stones 
     return opponentStones;
 }
 
-function reverseTop(board: Stones, move: Stone, activeGamer: Gamer): Stones {
+function reverseTop(board: Stones, move: Stone, activeGamer: EGamer): Stones {
     let opponentStones: Stones = [];
     let toTop: Stone | undefined = board.find(item => item.row == move.row - 1 && item.col == move.col);
     if (!toTop?.gamer || toTop?.gamer == activeGamer) return opponentStones;
@@ -71,7 +71,7 @@ function reverseTop(board: Stones, move: Stone, activeGamer: Gamer): Stones {
     return opponentStones;
 }
 
-function reverseTopRight(board: Stones, move: Stone, activeGamer: Gamer): Stones {
+function reverseTopRight(board: Stones, move: Stone, activeGamer: EGamer): Stones {
     let opponentStones: Stones = [];
     let toBottomLeft: Stone | undefined = board.find(item => item.row == move.row + 1 && item.col == move.col - 1);
     if (!toBottomLeft?.gamer || toBottomLeft?.gamer == activeGamer) return opponentStones;
@@ -100,7 +100,7 @@ function reverseTopRight(board: Stones, move: Stone, activeGamer: Gamer): Stones
     return opponentStones;
 }
 
-function reverseRight(board: Stones, move: Stone, activeGamer: Gamer): Stones {
+function reverseRight(board: Stones, move: Stone, activeGamer: EGamer): Stones {
     let opponentStones: Stones = [];
     let nextRight: Stone | undefined = board.find(item => item.row == move.row && item.col == move.col + 1);
 
@@ -130,7 +130,7 @@ function reverseRight(board: Stones, move: Stone, activeGamer: Gamer): Stones {
     return opponentStones;
 }
 
-function reverseBottomRight(board: Stones, move: Stone, activeGamer: Gamer): Stones {
+function reverseBottomRight(board: Stones, move: Stone, activeGamer: EGamer): Stones {
     let opponentStones: Stones = [];
     let toTopLeft: Stone | undefined = board.find(item => item.row == move.row - 1 && item.col == move.col - 1);
     if (!toTopLeft?.gamer || toTopLeft?.gamer == activeGamer) return opponentStones;
@@ -159,7 +159,7 @@ function reverseBottomRight(board: Stones, move: Stone, activeGamer: Gamer): Sto
     return opponentStones;
 }
 
-function reverseBottom(board: Stones, move: Stone, activeGamer: Gamer): Stones {
+function reverseBottom(board: Stones, move: Stone, activeGamer: EGamer): Stones {
     let opponentStones: Stones = [];
     let toBottom: Stone | undefined = board.find(item => item.row == move.row + 1 && item.col == move.col);
     if (!toBottom?.gamer || toBottom?.gamer == activeGamer) return opponentStones;
@@ -187,7 +187,7 @@ function reverseBottom(board: Stones, move: Stone, activeGamer: Gamer): Stones {
     return opponentStones;
 }
 
-function reverseBottomLeft(board: Stones, move: Stone, activeGamer: Gamer): Stones {
+function reverseBottomLeft(board: Stones, move: Stone, activeGamer: EGamer): Stones {
     let opponentStones: Stones = [];
     let toTopRight: Stone | undefined = board.find(item => item.row == move.row - 1 && item.col == move.col + 1);
     if (!toTopRight?.gamer || toTopRight?.gamer == activeGamer) return opponentStones
@@ -217,7 +217,7 @@ function reverseBottomLeft(board: Stones, move: Stone, activeGamer: Gamer): Ston
     return opponentStones;
 }
 
-function reverseLeft(board: Stones, move: Stone, activeGamer: Gamer): Stones {
+function reverseLeft(board: Stones, move: Stone, activeGamer: EGamer): Stones {
     let opponentStones: Stones = [];
     let toLeft: Stone | undefined = board.find(item => item.row == move.row && item.col == move.col - 1);
     if (!toLeft?.gamer || toLeft?.gamer == activeGamer) return opponentStones;
