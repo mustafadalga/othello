@@ -1,33 +1,24 @@
-import { Gamer } from "@/_enums";
 import { DIMENSION } from "@/_constants";
 import { Stones } from "@/_types";
+import { EGamer } from "@/_enums";
 
 export default function createBoard(): Stones {
-    const initialStones = {
-        "33": Gamer.WHITE,
-        "34": Gamer.BLACK,
-        "43": Gamer.BLACK,
-        "44": Gamer.WHITE,
+    const initialCells: Record<string, EGamer> = {
+        "33": EGamer.WHITE,
+        "34": EGamer.BLACK,
+        "43": EGamer.BLACK,
+        "44": EGamer.WHITE,
     };
 
     const board: Stones = [];
     for (let row = 0; row < DIMENSION; row++) {
         for (let col = 0; col < DIMENSION; col++) {
-            const property: string = row.toString() + col.toString()
 
-            if (Object.hasOwn(initialStones, property)) {
-                board.push({
-                    row,
-                    col,
-                    gamer: initialStones[property as keyof typeof initialStones] || null,
-                })
-                continue;
-            }
-
+            const gamer = initialCells[`${row}${col}`] as EGamer || null
             board.push({
                 row,
                 col,
-                gamer: initialStones[property as keyof typeof initialStones],
+                gamer
             })
         }
     }
