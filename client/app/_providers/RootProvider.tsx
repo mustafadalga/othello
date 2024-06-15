@@ -1,14 +1,18 @@
 "use client";
+import { ReactNode, useEffect, useState } from "react";
+import { ApolloClient, ApolloProvider, createHttpLink, InMemoryCache, split, from } from "@apollo/client";
+import { removeTypenameFromVariables } from '@apollo/client/link/remove-typename';
 
-import { ApolloClient, ApolloProvider, createHttpLink, InMemoryCache, split } from "@apollo/client";
+
 import { GraphQLWsLink } from "@apollo/client/link/subscriptions";
 import { getMainDefinition } from "@apollo/client/utilities";
 import { createClient } from "graphql-ws";
 import { LocalStorage } from "@/_enums";
-import { ReactNode, useEffect, useState } from "react";
+import { IMove } from "@/_types";
 
 
 function client() {
+    const removeTypenameLink = removeTypenameFromVariables();
     const httpLink = createHttpLink({
         uri: process.env.NEXT_PUBLIC_API_URL
     });
@@ -31,10 +35,38 @@ function client() {
         wsLink,
         httpLink,
     );
+    const link = from([removeTypenameLink, splitLink]);
+
+    const cache = new InMemoryCache({
+        typePolicies: {
+            Subscription: {
+                fields: {
+                    gameMoved: {
+                        keyArgs: [ "gameID" ],
+                        merge(existing: IMove[] = [], incoming: IMove[]) {
+                            const merged = [ ...existing ];
+
+                            // Create a map to keep track of unique row+col combinations
+                            const map = new Map();
+                            for (const move of merged) {
+                                map.set(`${move.row}:${move.col}`, move);
+                            }
+
+                            for (const move of incoming) {
+                                map.set(`${move.row}:${move.col}`, move);
+                            }
+
+                            return Array.from(map.values());
+                        }
+                    }
+                }
+            }
+        }
+    });
 
     return new ApolloClient({
-        link: splitLink,
-        cache: new InMemoryCache()
+        link,
+        cache
     });
 }
 
