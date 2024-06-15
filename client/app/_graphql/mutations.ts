@@ -1,10 +1,9 @@
 import { gql } from "@apollo/client";
 
 export const CREATE_GAME = gql`
-    mutation createGame($playAgainstComputer: Boolean) {
-        game:createGame(playAgainstComputer:$playAgainstComputer) {
+    mutation createGame {
+        game:createGame {
             _id,
-            playAgainstComputer
         }
     }
 `
@@ -17,9 +16,9 @@ export const ADD_PLAYER = gql`
     }
 `
 
-export const CREATE_MOVE = gql`
-    mutation createMove($move: UserMove!) {
-        game:createMove(move: $move) {
+export const CREATE_MOVES = gql`
+    mutation createMoves($moves: [UserMove]!) {
+        moves:createMoves(moves: $moves) {
             row,
             col,
             gameID,
@@ -28,25 +27,18 @@ export const CREATE_MOVE = gql`
     }
 `;
 
-export const FINISH_GAME = gql`
-    mutation finishGame($data: FinishGame!) {
-        game:finishGame(data: $data) {
+export const UPDATE_GAME = gql`
+    mutation updateGame($data: UpdateGameInput!) {
+        game:updateGame(data: $data) {
             _id
         }
     }
-`;
+`
 
-export const EXIT_GAME = gql`
-    mutation exitGame($data: ExitGame!) {
-        game:exitGame(data: $data) {
-            _id
-        }
-    }
-`;
 
 export const RESTART_GAME = gql`
-    mutation restartGame($id: ID!) {
-        game:restartGame(_id: $id) {
+    mutation restartGame($_id: ID!) {
+        game:restartGame(_id: $_id) {
             _id
         }
     }
