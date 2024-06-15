@@ -16,7 +16,7 @@ interface AddTodoVariables {
 
 export default function CreateGame() {
     const [ createGame, { data, loading, error } ] = useMutation<AddTodoResponse, AddTodoVariables>(CREATE_GAME);
-    const roomURL: string = `${process.env.NEXT_PUBLIC_SITE_URL}/room/${data?.game?._id}` + `${process.env.NEXT_PUBLIC_SITE_URL}/room/${data?.game?._id}`;
+    const roomURL: string = `${process.env.NEXT_PUBLIC_SITE_URL}/room/${data?.game?._id}`;
     const playAgainstComputer: boolean = data?.game?.playAgainstComputer || false;
 
 
@@ -27,6 +27,7 @@ export default function CreateGame() {
             }
         })
     }
+
     return (
         <section
             className="w-full max-w-3xl grid place-items-center gap-5 mx-auto p-5 lg:p-8 rounded-xl bg-white shadow-xl">
