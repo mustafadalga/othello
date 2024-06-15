@@ -1,6 +1,9 @@
 import type { Metadata } from "next";
+import { ToastContainer } from 'react-toastify';
 import "./globals.css";
 import RootProvider from "@/_providers/RootProvider";
+import 'react-toastify/dist/ReactToastify.css';
+
 
 export const metadata: Metadata = {
   title: "Othello",
@@ -18,6 +21,7 @@ export default function RootLayout({
       <RootProvider>
         {children}
       </RootProvider>
+      <ToastContainer className="text-sm md:text-base"/>
       </body>
     </html>
   );
