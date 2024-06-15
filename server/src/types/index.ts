@@ -1,24 +1,26 @@
-import { Gamer, GamerStatus } from "@/enums";
+import { EGamer, GamerStatus } from "@/enums";
 import { Schema } from "mongoose";
 
-export interface Game {
+export interface IGamer {
+    id: string
+    color: EGamer
+    status: GamerStatus,
+    canMove: boolean
+}
+
+export interface IGame {
     _id: Schema.Types.ObjectId
-    gamers: {
-        id: string,
-        color: Gamer,
-        status: GamerStatus
-    }[]
+    gamers: IGamer[]
     isGameFinished: boolean
     isGameStarted: boolean
     moveOrder: string
     winnerGamer: string
-    playAgainstComputer: boolean,
     exitGamer: string
 }
 
-export interface Move {
+export interface IMove {
     row: number
     col: number
-    gamer: Gamer,
+    gamer: EGamer,
     gameID: Schema.Types.ObjectId
 }
