@@ -1,31 +1,32 @@
 import { GraphQLError } from 'graphql';
-import { isValidObjectId } from "mongoose";
+import { MongoError } from "mongodb";
+import { isValidObjectId, Types } from "mongoose";
 import Game from "@/models/Game";
 import Move from "@/models/Move"
-import type { Move as IMove } from "@/types"
-import { MongoError } from "mongodb";
-import { Gamer, SubscriptionMessages, GamerStatus } from "@/enums";
-import { GAMERS_THRESHOLD } from "@/constansts";
-
-import { PubSub } from "graphql-subscriptions";
-
-const pubsub = new PubSub();
+import {
+    MAX_GAMER_COUNT,
+    INITIAL__STONES,
+    INITIAL_GAMER_STONE_COUNT,
+} from "@/constansts";
+import getNextGamerSide from "@/utilities/getNextGamerSide";
+import pubsub from "@/pubsub"
+import { EGamer, GamerStatus, SubscriptionMessages } from "@/enums";
+import type { IGamer, IMove } from "@/types"
 
 interface AddPlayer {
-    roomID: string
+    gameID: string
     gamerID: string
 }
 
-interface ExitGame {
-    roomID: string
-    gamerID: string
-}
-
-interface FinishGame {
+interface UpdateGame {
     _id: string
-    winnerGamer: string,
+    isGameFinished: boolean
+    isGameStarted: boolean
+    moveOrder: string
+    winnerGamer: string
+    exitGamer: string
+    gamers: Types.DocumentArray<IGamer>
 }
-
 
 export default {
     Query: {
@@ -37,7 +38,7 @@ export default {
             }
             if (!isValidObjectId(_id)) {
                 throw new GraphQLError('Invalid game ID. Please provide a valid game ID.', {
-                    extensions: { code: 'BAD_USER_INPUT' },
+                    extensions: { code: 'GAME_NOT_FOUND' },
                 });
             }
 
@@ -51,10 +52,10 @@ export default {
                 switch (error.message) {
                     case 'Game not found':
                         throw new GraphQLError('Game not found. Please provide a valid game ID.', {
-                            extensions: { code: 'NOT_FOUND' },
+                            extensions: { code: 'GAME_NOT_FOUND' },
                         });
                     default:
-                        throw new GraphQLError("Failed to create the game due to invalid input.", {
+                        throw new GraphQLError("Failed to create the game due to invalid input. Please check your entries and try again.", {
                             extensions: { code: 'INTERNAL_SERVER_ERROR' },
                         });
                 }
@@ -68,7 +69,7 @@ export default {
             }
             if (!isValidObjectId(gameID)) {
                 throw new GraphQLError('Invalid game ID. Please provide a valid game ID.', {
-                    extensions: { code: 'BAD_USER_INPUT' },
+                    extensions: { code: 'GAME_NOT_FOUND' },
                 });
             }
 
@@ -83,7 +84,55 @@ export default {
                 switch (error.message) {
                     case 'Moves not found':
                         throw new GraphQLError('Moves not found. Please provide a valid game ID.', {
-                            extensions: { code: 'NOT_FOUND' },
+                            extensions: { code: 'GAME_NOT_FOUND' },
+                        });
+                    default:
+                        throw new GraphQLError("Failed to create the game due to invalid input.", {
+                            extensions: { code: 'INTERNAL_SERVER_ERROR' },
+                        });
+                }
+            }
+        },
+        gamersStoneCountByGameID: async (parent: unknown, { gameID }: { gameID: string }) => {
+            if (!gameID) {
+                throw new GraphQLError("Game id is required", {
+                    extensions: { code: 'BAD_USER_INPUT' },
+                });
+            }
+            if (!isValidObjectId(gameID)) {
+                throw new GraphQLError('Invalid game ID. Please provide a valid game ID.', {
+                    extensions: { code: 'GAME_NOT_FOUND' },
+                });
+            }
+
+            try {
+                const game = await Game.findById(gameID);
+                if (!game) {
+                    throw new Error('Game not found');
+                }
+
+                const moves = await Move.find({ gameID });
+                if (!moves) {
+                    throw new Error('Moves not found');
+                }
+
+                return {
+                    game: game,
+                    count: {
+                        [EGamer.BLACK]: moves.filter(move => move.gamer == EGamer.BLACK).length,
+                        [EGamer.WHITE]: moves.filter(move => move.gamer == EGamer.WHITE).length,
+                    }
+                }
+
+            } catch (error) {
+                switch (error.message) {
+                    case 'Game not found':
+                        throw new GraphQLError('Game not found. Please provide a valid game ID.', {
+                            extensions: { code: 'GAME_NOT_FOUND' },
+                        });
+                    case 'Moves not found':
+                        throw new GraphQLError('Moves not found. Please provide a valid game ID.', {
+                            extensions: { code: 'GAME_NOT_FOUND' },
                         });
                     default:
                         throw new GraphQLError("Failed to create the game due to invalid input.", {
@@ -94,11 +143,10 @@ export default {
         }
     },
     Mutation: {
-        createGame: (parent, { playAgainstComputer }: { playAgainstComputer: boolean }) => {
+        createGame: () => {
             try {
-                const game = new Game({
-                    playAgainstComputer
-                });
+                const game = new Game();
+                Move.insertMany(INITIAL__STONES.map(stone => ({ ...stone, gameID: game._id })));
                 return game.save();
             } catch (e) {
                 throw new GraphQLError("Failed to create the game due to invalid input.", {
@@ -107,44 +155,55 @@ export default {
             }
         },
         addPlayer: async (parent: unknown, { data }: { data: AddPlayer }) => {
-            if (!data.roomID || !data.gamerID) {
+            if (!data.gameID || !data.gamerID) {
                 throw new GraphQLError("Game id and gamer is required", {
                     extensions: { code: 'BAD_USER_INPUT' },
                 });
             }
 
-            if (!isValidObjectId(data.roomID)) {
+            if (!isValidObjectId(data.gameID)) {
                 throw new GraphQLError('Invalid game ID. Please provide a valid game ID.', {
-                    extensions: { code: 'BAD_USER_INPUT' },
+                    extensions: { code: 'GAME_NOT_FOUND' },
                 });
             }
 
             try {
-                const game = await Game.findById({ _id: data.roomID });
+                const game = await Game.findById({ _id: data.gameID });
                 if (!game) {
                     throw new Error('Game not found');
                 }
 
-                if (game.gamers.length >= 2) {
+                if (game.gamers.length >= MAX_GAMER_COUNT) {
                     throw new Error('Room is full');
                 }
 
                 const hasPlayer = game.gamers.some(gamer => gamer.id === data.gamerID);
                 if (hasPlayer) {
-                    throw new Error('Player already exists');
+                    return game;
                 }
 
-                const hasBlackPlayer = game.gamers.some(gamer => gamer.color === Gamer.BLACK);
-                const gamerData = {
+                const color = getNextGamerSide(game.gamers as IGamer[]);
+                game.gamers.push({
                     id: data.gamerID,
-                    color: hasBlackPlayer ? Gamer.WHITE : Gamer.BLACK,
+                    color,
                     status: GamerStatus.CONNECTED
-                }
-                game.gamers.push(gamerData);
+                });
 
-                if (game.gamers.length == GAMERS_THRESHOLD) {
-                    pubsub.publish(SubscriptionMessages.GAME_STARTED, { gameStarted: true })
+
+                // sent initial moves data to subscribers
+                const allMoves = await Move.find({ gameID: data.gameID });
+
+                pubsub.publish(`${SubscriptionMessages.GAME_MOVED}_${data.gameID}`, { gameMoved: allMoves });
+
+                if (game.gamers.length == MAX_GAMER_COUNT) {
+                    // start game with black gamer
                     game.isGameStarted = true;
+                    const gamer = game.gamers.find(gamer => gamer.color == EGamer.BLACK);
+                    if (gamer?.id) {
+                        game.moveOrder = gamer.id;
+                    }
+
+                    pubsub.publish(`${SubscriptionMessages.GAME_UPDATED}_${data.gameID}`, { gameUpdated: game });
                 }
 
                 return game.save();
@@ -152,50 +211,24 @@ export default {
                 switch (error.message) {
                     case 'Game not found':
                         throw new GraphQLError('Game not found. Please provide a valid game ID.', {
-                            extensions: { code: 'NOT_FOUND' },
+                            extensions: { code: 'GAME_NOT_FOUND' },
                         });
                     case 'Room is full':
                         throw new GraphQLError('Room is full. Please provide a valid game ID.', {
-                            extensions: { code: "ROOM_IS_FULL" },
+                            extensions: { code: "GAME_FULL" },
                         });
                     case "Player already exists":
-                        throw new GraphQLError('Player already exists. Please provide a valid game ID.', {
+                        throw new GraphQLError('Player already exists!', {
                             extensions: { code: "PLAYER_ALREADY_EXISTS" },
                         })
                     default:
-                        throw new GraphQLError("Failed to create the game due to invalid input.", {
+                        throw new GraphQLError("Failed to create the game due to invalid input. Please check your entries and try again.", {
                             extensions: { code: 'INTERNAL_SERVER_ERROR' },
                         });
                 }
             }
         },
-        createMove: async (parent: unknown, { move }: { move: IMove }) => {
-
-             try {
-                const newMove = new Move(move);
-                const response = await newMove.save();
-
-                if (response instanceof MongoError) {
-                    throw response;
-                }
-
-                 const topic = `${SubscriptionMessages.GAME_MOVE}_${move.gameID}`;
-                 pubsub.publish(topic, { gameMove: move });
-
-                return response;
-            } catch (error) {
-                if (error instanceof MongoError && error.code == 11000) {
-                    throw new GraphQLError(`A move with the same row (${move.row}), col (${move.col}), and gameID (${move.gameID}) already exists.`, {
-                        extensions: { code: 'DUPLICATE_MOVE' },
-                    });
-                }
-
-                throw new GraphQLError("Failed to create the game due to invalid input.", {
-                    extensions: { code: 'INTERNAL_SERVER_ERROR' },
-                });
-            }
-        },
-        finishGame: async (parent: unknown, { data }: { data: FinishGame }) => {
+        updateGame: async (parent: unknown, { data }: { data: UpdateGame }) => {
             if (!data._id) {
                 throw new GraphQLError("Game id is required", {
                     extensions: { code: 'BAD_USER_INPUT' },
@@ -204,63 +237,84 @@ export default {
 
             if (!isValidObjectId(data._id)) {
                 throw new GraphQLError('Invalid game ID. Please provide a valid game ID.', {
-                    extensions: { code: 'BAD_USER_INPUT' },
+                    extensions: { code: 'GAME_NOT_FOUND' },
                 });
             }
 
-
             try {
-                const game = await Game.findOneAndUpdate({ _id: data._id }, {
-                    winnerGamer: data.winnerGamer,
-                    isGameStarted: false,
-                    isGameFinished: true,
-                    moveOrder: null
-                });
-
+                const game = await Game.findById({ _id: data._id });
                 if (!game) {
                     throw new Error('Game not found');
                 }
-                pubsub.publish(SubscriptionMessages.GAME_FINISHED, { gameFinished: true })
-                return game;
+
+                if (data.isGameFinished !== undefined) game.isGameFinished = data.isGameFinished;
+                if (data.isGameStarted !== undefined) game.isGameStarted = data.isGameStarted;
+                if (data.moveOrder !== undefined) game.moveOrder = data.moveOrder;
+                if (data.winnerGamer !== undefined) game.winnerGamer = data.winnerGamer;
+                if (data.exitGamer !== undefined) game.exitGamer = data.exitGamer;
+                if (data.gamers !== undefined) game.gamers = data.gamers;
+
+                pubsub.publish(`${SubscriptionMessages.GAME_UPDATED}_${data._id}`, { gameUpdated: game });
+
+                return game.save();
             } catch (error) {
                 switch (error.message) {
                     case 'Game not found':
                         throw new GraphQLError('Game not found. Please provide a valid game ID.', {
-                            extensions: { code: 'NOT_FOUND' },
+                            extensions: { code: 'GAME_NOT_FOUND' },
                         });
                     default:
-                        throw new GraphQLError("Failed to finish the game", {
+                        throw new GraphQLError("Failed to create the game due to invalid input. Please check your entries and try again.", {
                             extensions: { code: 'INTERNAL_SERVER_ERROR' },
                         });
                 }
             }
         },
-        exitGame: async (parent: unknown, { data }: { data: ExitGame }) => {
-            if (!data.roomID || !data.gamerID) {
-                throw new GraphQLError("Game id and gamer is required", {
-                    extensions: { code: 'BAD_USER_INPUT' },
-                });
-            }
-
-            if (!isValidObjectId(data.roomID)) {
-                throw new GraphQLError('Invalid game ID. Please provide a valid game ID.', {
-                    extensions: { code: 'BAD_USER_INPUT' },
-                });
-            }
-
+        createMoves: async (parent: unknown, { moves }: { moves: IMove[] }) => {
             try {
-                const game = await Game.findById({ _id: data.roomID });
-                if (!game) {
-                    throw new Error('Game not found');
+                const gameID = moves[0].gameID;
+                const gamer = moves[0].gamer
+                const updateGameMoveOrder = async () => {
+                    const game = await Game.findById({ _id: gameID });
+                    const index = game.gamers.findIndex(gamerItem => gamerItem.color == gamer);
+                    game.moveOrder = game.gamers[index == 0 ? 1 : 0].id
+                    return await game.save();
                 }
-                game.exitGamer = data.gamerID;
-                game.isGameFinished = true;
-                game.moveOrder = null;
-                game.save();
-                pubsub.publish(SubscriptionMessages.GAME_EXIT, { gameExit: data.gamerID })
-                return game;
+                const bulkUpdateMoves = () => {
+                    return Move.bulkWrite(moves.map(move => ({
+                        updateOne: {
+                            filter: { row: move.row, col: move.col, gameID: move.gameID },
+                            update: { $set: move },
+                            upsert: true
+                        }
+                    })))
+                }
+
+                const [ _, gameResponse ] = await Promise.all([ bulkUpdateMoves(), updateGameMoveOrder() ]);
+                const allMoves = await Move.find({ gameID });
+
+                pubsub.publish(`${SubscriptionMessages.GAME_MOVED}_${gameID}`, { gameMoved: moves });
+                pubsub.publish(`${SubscriptionMessages.GAME_UPDATED}_${gameID}`, { gameUpdated: gameResponse });
+                pubsub.publish(`${SubscriptionMessages.GAMERS_STONE_COUNT_UPDATED}_${gameID}`, {
+                    gamersStoneCountUpdated: {
+                        game: gameResponse,
+                        count: {
+                            [EGamer.BLACK]: allMoves.filter(move => move.gamer == EGamer.BLACK).length,
+                            [EGamer.WHITE]: allMoves.filter(move => move.gamer == EGamer.WHITE).length,
+                        }
+                    }
+                });
+
+                return moves;
             } catch (error) {
-                throw new GraphQLError("Failed to exit the game", {
+                if (error instanceof MongoError && error.code == 11000) {
+                    const move = moves[0]
+                    throw new GraphQLError(`A move with the same row (${move.row}), col (${move.col}), and gameID (${move.gameID}) already exists.`, {
+                        extensions: { code: 'DUPLICATE_MOVE' },
+                    });
+                }
+
+                throw new GraphQLError("Failed to create the game due to invalid input.", {
                     extensions: { code: 'INTERNAL_SERVER_ERROR' },
                 });
             }
@@ -279,26 +333,70 @@ export default {
             }
 
             try {
-                const game = await Game.findOneAndUpdate({ _id }, {
-                    winnerGamer: null,
-                    isGameStarted: true,
-                    isGameFinished: false,
-                    moveOrder: Gamer.BLACK
-                });
 
+                const game = await Game.findById(_id);
                 if (!game) {
                     throw new Error('Game not found');
                 }
 
-                await Move.deleteMany({ gameID: _id });
+                if (game.gamers.length != MAX_GAMER_COUNT) return game;
 
-                pubsub.publish(SubscriptionMessages.GAME_FINISHED, { gameFinished: true })
+                const restartGame = () => {
+                    game.moveOrder = game.gamers.find(gamer => gamer.color == EGamer.BLACK)?.id || null;
+                    game.gamers.forEach(gamer => gamer.canMove = true)
+                    game.isGameStarted = true;
+                    game.isGameFinished = false;
+                    game.winnerGamer = null;
+                    game.exitGamer = null;
+                    game.save();
+                };
+
+                const restartMoves = async () => {
+                    const bulkOps = [
+                        // Add the delete operation to remove all moves for the specific gameID
+                        {
+                            deleteMany: {
+                                filter: { gameID: _id }
+                            }
+                        },
+                        // Add insert operations for each initial stone
+                        ...INITIAL__STONES.map(stone => ({
+                            insertOne: {
+                                document: {
+                                    gameID: _id,
+                                    row: stone.row,
+                                    col: stone.col,
+                                    gamer: stone.gamer
+                                }
+                            }
+                        }))
+                    ];
+
+                    await Move.bulkWrite(bulkOps);
+                    return await Move.find({ gameID: _id });
+                }
+
+                restartGame();
+                const allMoves = await restartMoves();
+                pubsub.publish(`${SubscriptionMessages.GAME_UPDATED}_${_id}`, { gameUpdated: game });
+                pubsub.publish(`${SubscriptionMessages.GAME_RESTARTED}_${_id}`, { gameRestarted: game });
+                pubsub.publish(`${SubscriptionMessages.GAME_MOVED}_${_id}`, { gameMoved: allMoves });
+                pubsub.publish(`${SubscriptionMessages.GAMERS_STONE_COUNT_UPDATED}_${_id}`, {
+                    gamersStoneCountUpdated: {
+                        game,
+                        count: {
+                            [EGamer.BLACK]: INITIAL_GAMER_STONE_COUNT,
+                            [EGamer.WHITE]: INITIAL_GAMER_STONE_COUNT,
+                        }
+                    }
+                });
+
                 return game;
             } catch (error) {
                 switch (error.message) {
                     case 'Game not found':
                         throw new GraphQLError('Game not found. Please provide a valid game ID.', {
-                            extensions: { code: 'NOT_FOUND' },
+                            extensions: { code: 'GAME_NOT_FOUND' },
                         });
                     default:
                         throw new GraphQLError("Failed to finish the game", {
@@ -309,26 +407,26 @@ export default {
         }
     },
     Subscription: {
-        gameMove: {
-            subscribe: (parent, { gameID }) => {
-                const topic = `${SubscriptionMessages.GAME_MOVE}_${gameID}`;
-                return pubsub.asyncIterator([topic]);
-            },
+        gameMoved: {
+            subscribe: (parent, { gameID }) => pubsub.asyncIterator([ `${SubscriptionMessages.GAME_MOVED}_${gameID}` ]),
         },
         gameStarted: {
-            subscribe: () => pubsub.asyncIterator(SubscriptionMessages.GAME_STARTED)
+            subscribe: (parent, { gameID }) => pubsub.asyncIterator([ `${SubscriptionMessages.GAME_STARTED}_${gameID}` ])
         },
-        gameFinished: {
-            subscribe: () => pubsub.asyncIterator(SubscriptionMessages.GAME_FINISHED)
+        gameRestarted: {
+            subscribe: (parent, { gameID }) => pubsub.asyncIterator([ `${SubscriptionMessages.GAME_RESTARTED}_${gameID}` ])
         },
-        gameExit: {
-            subscribe: () => pubsub.asyncIterator(SubscriptionMessages.GAME_EXIT)
+        gameUpdated: {
+            subscribe: (parent, { gameID }) => pubsub.asyncIterator([ `${SubscriptionMessages.GAME_UPDATED}_${gameID}` ])
+        },
+        gamersStoneCountUpdated: {
+            subscribe: (parent, { gameID }) => pubsub.asyncIterator([ `${SubscriptionMessages.GAMERS_STONE_COUNT_UPDATED}_${gameID}` ])
         },
         gamerConnected: {
-            subscribe: () => pubsub.asyncIterator(SubscriptionMessages.GAMER_CONNECTED)
+            subscribe: (parent, { gameID }) => pubsub.asyncIterator([ `${SubscriptionMessages.GAMER_CONNECTED}_${gameID}` ])
         },
         gamerDisconnected: {
-            subscribe: () => pubsub.asyncIterator(SubscriptionMessages.GAMER_DISCONNECTED)
+            subscribe: (parent, { gameID }) => pubsub.asyncIterator([ `${SubscriptionMessages.GAMER_DISCONNECTED}_${gameID}` ])
         }
     }
 }
