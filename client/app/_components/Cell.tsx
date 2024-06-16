@@ -1,6 +1,6 @@
 import Stone from "./Stone";
 import Hint from "./Hint";
-import { Stone as IStone } from "@/_types";
+import { IStone } from "@/_types";
 
 interface Props {
     stone: IStone,

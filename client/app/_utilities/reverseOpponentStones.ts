@@ -1,7 +1,7 @@
-import { Stone, Stones } from "@/_types";
+import { IStone, IStones } from "@/_types";
 import { EGamer } from "@/_enums";
 
-export default function reverseOpponentStones(board: Stones, move: Stone, activeGamer: EGamer): Stones {
+export default function reverseOpponentStones(board: IStones, move: IStone, activeGamer: EGamer): IStones {
     return [
         ...reverseTopLeft(board, move, activeGamer),
         ...reverseTop(board, move, activeGamer),
@@ -14,16 +14,16 @@ export default function reverseOpponentStones(board: Stones, move: Stone, active
     ]
 }
 
-function reverseTopLeft(board: Stones, move: Stone, activeGamer: EGamer): Stones {
-    let opponentStones: Stones = [];
-    let toBottomRight: Stone | undefined = board.find(item => item.row == move.row + 1 && item.col == move.col + 1);
+function reverseTopLeft(board: IStones, move: IStone, activeGamer: EGamer): IStones {
+    let opponentStones: IStones = [];
+    let toBottomRight: IStone | undefined = board.find(item => item.row == move.row + 1 && item.col == move.col + 1);
     if (!toBottomRight?.gamer || toBottomRight?.gamer == activeGamer) return opponentStones;
 
     opponentStones.push(toBottomRight);
     let hasActiveColorInChain = false;
 
     while (toBottomRight) {
-        toBottomRight = board.find(item => item.row == (toBottomRight as Stone).row + 1 && item.col == (toBottomRight as Stone).col + 1);
+        toBottomRight = board.find(item => item.row == (toBottomRight as IStone).row + 1 && item.col == (toBottomRight as IStone).col + 1);
         if (!toBottomRight?.gamer) {
             break;
         }
@@ -42,16 +42,16 @@ function reverseTopLeft(board: Stones, move: Stone, activeGamer: EGamer): Stones
     return opponentStones;
 }
 
-function reverseTop(board: Stones, move: Stone, activeGamer: EGamer): Stones {
-    let opponentStones: Stones = [];
-    let toTop: Stone | undefined = board.find(item => item.row == move.row - 1 && item.col == move.col);
+function reverseTop(board: IStones, move: IStone, activeGamer: EGamer): IStones {
+    let opponentStones: IStones = [];
+    let toTop: IStone | undefined = board.find(item => item.row == move.row - 1 && item.col == move.col);
     if (!toTop?.gamer || toTop?.gamer == activeGamer) return opponentStones;
 
     opponentStones.push(toTop);
     let hasActiveColorInChain = false;
 
     while (toTop) {
-        toTop = board.find(item => item.row == (toTop as Stone).row - 1 && item.col == (toTop as Stone).col);
+        toTop = board.find(item => item.row == (toTop as IStone).row - 1 && item.col == (toTop as IStone).col);
         if (!toTop?.gamer) {
             break;
         }
@@ -71,16 +71,16 @@ function reverseTop(board: Stones, move: Stone, activeGamer: EGamer): Stones {
     return opponentStones;
 }
 
-function reverseTopRight(board: Stones, move: Stone, activeGamer: EGamer): Stones {
-    let opponentStones: Stones = [];
-    let toBottomLeft: Stone | undefined = board.find(item => item.row == move.row + 1 && item.col == move.col - 1);
+function reverseTopRight(board: IStones, move: IStone, activeGamer: EGamer): IStones {
+    let opponentStones: IStones = [];
+    let toBottomLeft: IStone | undefined = board.find(item => item.row == move.row + 1 && item.col == move.col - 1);
     if (!toBottomLeft?.gamer || toBottomLeft?.gamer == activeGamer) return opponentStones;
 
     opponentStones.push(toBottomLeft);
     let hasActiveColorInChain = false;
 
     while (toBottomLeft) {
-        toBottomLeft = board.find(item => item.row == (toBottomLeft as Stone).row + 1 && item.col == (toBottomLeft as Stone).col - 1);
+        toBottomLeft = board.find(item => item.row == (toBottomLeft as IStone).row + 1 && item.col == (toBottomLeft as IStone).col - 1);
         if (!toBottomLeft?.gamer) {
             break;
         }
@@ -100,9 +100,9 @@ function reverseTopRight(board: Stones, move: Stone, activeGamer: EGamer): Stone
     return opponentStones;
 }
 
-function reverseRight(board: Stones, move: Stone, activeGamer: EGamer): Stones {
-    let opponentStones: Stones = [];
-    let nextRight: Stone | undefined = board.find(item => item.row == move.row && item.col == move.col + 1);
+function reverseRight(board: IStones, move: IStone, activeGamer: EGamer): IStones {
+    let opponentStones: IStones = [];
+    let nextRight: IStone | undefined = board.find(item => item.row == move.row && item.col == move.col + 1);
 
     if (!nextRight?.gamer || nextRight?.gamer == activeGamer) return opponentStones;
 
@@ -110,7 +110,7 @@ function reverseRight(board: Stones, move: Stone, activeGamer: EGamer): Stones {
     let hasActiveColorInChain = false;
 
     while (nextRight) {
-        nextRight = board.find(item => item.row == (nextRight as Stone).row && item.col == (nextRight as Stone).col + 1);
+        nextRight = board.find(item => item.row == (nextRight as IStone).row && item.col == (nextRight as IStone).col + 1);
         if (!nextRight?.gamer) {
             break;
         }
@@ -130,16 +130,16 @@ function reverseRight(board: Stones, move: Stone, activeGamer: EGamer): Stones {
     return opponentStones;
 }
 
-function reverseBottomRight(board: Stones, move: Stone, activeGamer: EGamer): Stones {
-    let opponentStones: Stones = [];
-    let toTopLeft: Stone | undefined = board.find(item => item.row == move.row - 1 && item.col == move.col - 1);
+function reverseBottomRight(board: IStones, move: IStone, activeGamer: EGamer): IStones {
+    let opponentStones: IStones = [];
+    let toTopLeft: IStone | undefined = board.find(item => item.row == move.row - 1 && item.col == move.col - 1);
     if (!toTopLeft?.gamer || toTopLeft?.gamer == activeGamer) return opponentStones;
 
     opponentStones.push(toTopLeft);
     let hasActiveColorInChain = false;
 
     while (toTopLeft) {
-        toTopLeft = board.find(item => item.row == (toTopLeft as Stone).row - 1 && item.col == (toTopLeft as Stone).col - 1);
+        toTopLeft = board.find(item => item.row == (toTopLeft as IStone).row - 1 && item.col == (toTopLeft as IStone).col - 1);
         if (!toTopLeft?.gamer) {
             break;
         }
@@ -159,16 +159,16 @@ function reverseBottomRight(board: Stones, move: Stone, activeGamer: EGamer): St
     return opponentStones;
 }
 
-function reverseBottom(board: Stones, move: Stone, activeGamer: EGamer): Stones {
-    let opponentStones: Stones = [];
-    let toBottom: Stone | undefined = board.find(item => item.row == move.row + 1 && item.col == move.col);
+function reverseBottom(board: IStones, move: IStone, activeGamer: EGamer): IStones {
+    let opponentStones: IStones = [];
+    let toBottom: IStone | undefined = board.find(item => item.row == move.row + 1 && item.col == move.col);
     if (!toBottom?.gamer || toBottom?.gamer == activeGamer) return opponentStones;
 
     opponentStones.push(toBottom);
     let hasActiveColorInChain = false;
 
     while (toBottom) {
-        toBottom = board.find(item => item.row == (toBottom as Stone).row + 1 && item.col == (toBottom as Stone).col);
+        toBottom = board.find(item => item.row == (toBottom as IStone).row + 1 && item.col == (toBottom as IStone).col);
         if (!toBottom?.gamer) {
             break;
         }
@@ -187,9 +187,9 @@ function reverseBottom(board: Stones, move: Stone, activeGamer: EGamer): Stones 
     return opponentStones;
 }
 
-function reverseBottomLeft(board: Stones, move: Stone, activeGamer: EGamer): Stones {
-    let opponentStones: Stones = [];
-    let toTopRight: Stone | undefined = board.find(item => item.row == move.row - 1 && item.col == move.col + 1);
+function reverseBottomLeft(board: IStones, move: IStone, activeGamer: EGamer): IStones {
+    let opponentStones: IStones = [];
+    let toTopRight: IStone | undefined = board.find(item => item.row == move.row - 1 && item.col == move.col + 1);
     if (!toTopRight?.gamer || toTopRight?.gamer == activeGamer) return opponentStones
 
     opponentStones.push(toTopRight);
@@ -197,7 +197,7 @@ function reverseBottomLeft(board: Stones, move: Stone, activeGamer: EGamer): Sto
 
     // left
     while (toTopRight) {
-        toTopRight = board.find(item => item.row == (toTopRight as Stone).row - 1 && item.col == (toTopRight as Stone).col + 1);
+        toTopRight = board.find(item => item.row == (toTopRight as IStone).row - 1 && item.col == (toTopRight as IStone).col + 1);
         if (!toTopRight?.gamer) {
             break;
         }
@@ -217,16 +217,16 @@ function reverseBottomLeft(board: Stones, move: Stone, activeGamer: EGamer): Sto
     return opponentStones;
 }
 
-function reverseLeft(board: Stones, move: Stone, activeGamer: EGamer): Stones {
-    let opponentStones: Stones = [];
-    let toLeft: Stone | undefined = board.find(item => item.row == move.row && item.col == move.col - 1);
+function reverseLeft(board: IStones, move: IStone, activeGamer: EGamer): IStones {
+    let opponentStones: IStones = [];
+    let toLeft: IStone | undefined = board.find(item => item.row == move.row && item.col == move.col - 1);
     if (!toLeft?.gamer || toLeft?.gamer == activeGamer) return opponentStones;
 
     opponentStones.push(toLeft);
     let hasActiveColorInChain = false;
 
     while (toLeft) {
-        toLeft = board.find(item => item.row == (toLeft as Stone).row && item.col == (toLeft as Stone).col - 1);
+        toLeft = board.find(item => item.row == (toLeft as IStone).row && item.col == (toLeft as IStone).col - 1);
         if (!toLeft?.gamer) {
             break;
         }

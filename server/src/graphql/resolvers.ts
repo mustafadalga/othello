@@ -10,7 +10,7 @@ import {
 } from "@/constansts";
 import getNextGamerSide from "@/utilities/getNextGamerSide";
 import pubsub from "@/pubsub"
-import { EGamer, GamerStatus, SubscriptionMessages } from "@/enums";
+import { EGamer, EGamerStatus, ESubscriptionMessages } from "@/enums";
 import type { IGamer, IMove } from "@/types"
 
 interface AddPlayer {
@@ -186,7 +186,7 @@ export default {
                 game.gamers.push({
                     id: data.gamerID,
                     color,
-                    status: GamerStatus.CONNECTED,
+                    status: EGamerStatus.CONNECTED,
                     canMove: true
                 });
 
@@ -194,7 +194,7 @@ export default {
                 // sent initial moves data to subscribers
                 const allMoves = await Move.find({ gameID: data.gameID });
 
-                pubsub.publish(`${SubscriptionMessages.GAME_MOVED}_${data.gameID}`, { gameMoved: allMoves });
+                pubsub.publish(`${ESubscriptionMessages.GAME_MOVED}_${data.gameID}`, { gameMoved: allMoves });
 
                 if (game.gamers.length == MAX_GAMER_COUNT) {
                     // start game with black gamer
@@ -204,7 +204,7 @@ export default {
                         game.moveOrder = gamer.id;
                     }
 
-                    pubsub.publish(`${SubscriptionMessages.GAME_UPDATED}_${data.gameID}`, { gameUpdated: game });
+                    pubsub.publish(`${ESubscriptionMessages.GAME_UPDATED}_${data.gameID}`, { gameUpdated: game });
                 }
 
                 return game.save();
@@ -255,7 +255,7 @@ export default {
                 if (data.exitGamer !== undefined) game.exitGamer = data.exitGamer;
                 if (data.gamers !== undefined) game.gamers = data.gamers;
 
-                pubsub.publish(`${SubscriptionMessages.GAME_UPDATED}_${data._id}`, { gameUpdated: game });
+                pubsub.publish(`${ESubscriptionMessages.GAME_UPDATED}_${data._id}`, { gameUpdated: game });
 
                 return game.save();
             } catch (error) {
@@ -294,9 +294,9 @@ export default {
                 const [ _, gameResponse ] = await Promise.all([ bulkUpdateMoves(), updateGameMoveOrder() ]);
                 const allMoves = await Move.find({ gameID });
 
-                pubsub.publish(`${SubscriptionMessages.GAME_MOVED}_${gameID}`, { gameMoved: moves });
-                pubsub.publish(`${SubscriptionMessages.GAME_UPDATED}_${gameID}`, { gameUpdated: gameResponse });
-                pubsub.publish(`${SubscriptionMessages.GAMERS_STONE_COUNT_UPDATED}_${gameID}`, {
+                pubsub.publish(`${ESubscriptionMessages.GAME_MOVED}_${gameID}`, { gameMoved: moves });
+                pubsub.publish(`${ESubscriptionMessages.GAME_UPDATED}_${gameID}`, { gameUpdated: gameResponse });
+                pubsub.publish(`${ESubscriptionMessages.GAMERS_STONE_COUNT_UPDATED}_${gameID}`, {
                     gamersStoneCountUpdated: {
                         game: gameResponse,
                         count: {
@@ -379,10 +379,10 @@ export default {
 
                 restartGame();
                 const allMoves = await restartMoves();
-                pubsub.publish(`${SubscriptionMessages.GAME_UPDATED}_${_id}`, { gameUpdated: game });
-                pubsub.publish(`${SubscriptionMessages.GAME_RESTARTED}_${_id}`, { gameRestarted: game });
-                pubsub.publish(`${SubscriptionMessages.GAME_MOVED}_${_id}`, { gameMoved: allMoves });
-                pubsub.publish(`${SubscriptionMessages.GAMERS_STONE_COUNT_UPDATED}_${_id}`, {
+                pubsub.publish(`${ESubscriptionMessages.GAME_UPDATED}_${_id}`, { gameUpdated: game });
+                pubsub.publish(`${ESubscriptionMessages.GAME_RESTARTED}_${_id}`, { gameRestarted: game });
+                pubsub.publish(`${ESubscriptionMessages.GAME_MOVED}_${_id}`, { gameMoved: allMoves });
+                pubsub.publish(`${ESubscriptionMessages.GAMERS_STONE_COUNT_UPDATED}_${_id}`, {
                     gamersStoneCountUpdated: {
                         game,
                         count: {
@@ -409,22 +409,22 @@ export default {
     },
     Subscription: {
         gameMoved: {
-            subscribe: (parent, { gameID }) => pubsub.asyncIterator([ `${SubscriptionMessages.GAME_MOVED}_${gameID}` ]),
+            subscribe: (parent, { gameID }) => pubsub.asyncIterator([ `${ESubscriptionMessages.GAME_MOVED}_${gameID}` ]),
         },
         gameStarted: {
-            subscribe: (parent, { gameID }) => pubsub.asyncIterator([ `${SubscriptionMessages.GAME_STARTED}_${gameID}` ])
+            subscribe: (parent, { gameID }) => pubsub.asyncIterator([ `${ESubscriptionMessages.GAME_STARTED}_${gameID}` ])
         },
         gameRestarted: {
-            subscribe: (parent, { gameID }) => pubsub.asyncIterator([ `${SubscriptionMessages.GAME_RESTARTED}_${gameID}` ])
+            subscribe: (parent, { gameID }) => pubsub.asyncIterator([ `${ESubscriptionMessages.GAME_RESTARTED}_${gameID}` ])
         },
         gameUpdated: {
-            subscribe: (parent, { gameID }) => pubsub.asyncIterator([ `${SubscriptionMessages.GAME_UPDATED}_${gameID}` ])
+            subscribe: (parent, { gameID }) => pubsub.asyncIterator([ `${ESubscriptionMessages.GAME_UPDATED}_${gameID}` ])
         },
         gamersStoneCountUpdated: {
-            subscribe: (parent, { gameID }) => pubsub.asyncIterator([ `${SubscriptionMessages.GAMERS_STONE_COUNT_UPDATED}_${gameID}` ])
+            subscribe: (parent, { gameID }) => pubsub.asyncIterator([ `${ESubscriptionMessages.GAMERS_STONE_COUNT_UPDATED}_${gameID}` ])
         },
         gamerConnection: {
-            subscribe: (parent, { gameID }) => pubsub.asyncIterator([ `${SubscriptionMessages.GAMER_CONNECTION}_${gameID}` ])
+            subscribe: (parent, { gameID }) => pubsub.asyncIterator([ `${ESubscriptionMessages.GAMER_CONNECTION}_${gameID}` ])
         },
     }
 }

@@ -1,8 +1,8 @@
-import { Stone, Stones } from "@/_types";
+import { IStone, IStones } from "@/_types";
 import { EGamer } from "@/_enums";
 import { DIMENSION } from "@/_constants";
 
-export default function createHints(board: Stones, opponentStones: Stones, activeGamer: EGamer) {
+export default function createHints(board: IStones, opponentStones: IStones, activeGamer: EGamer) {
     return [
         ...topLeft(board, opponentStones, activeGamer),
         ...top(board, opponentStones, activeGamer),
@@ -15,7 +15,7 @@ export default function createHints(board: Stones, opponentStones: Stones, activ
     ]
 }
 
-function topLeft(board: Stones, opponentStones: Stones, activeGamer: EGamer): number[] {
+function topLeft(board: IStones, opponentStones: IStones, activeGamer: EGamer): number[] {
     const hints: number[] = [];
     for (const stone of opponentStones) {
         if (stone.row == 0) continue;
@@ -29,7 +29,7 @@ function topLeft(board: Stones, opponentStones: Stones, activeGamer: EGamer): nu
         if (isFirstCol || board[toTopLeftIndex]?.gamer) continue;
 
         let isActiveGamerLinked: boolean = false;
-        let toBottomRight: Stone | undefined = stone;
+        let toBottomRight: IStone | undefined = stone;
 
         while (!isActiveGamerLinked) {
             toBottomRight = board.find(item => item.row == (toBottomRight?.row || 0) + 1 && item.col == (toBottomRight?.col || 0) + 1);
@@ -51,7 +51,7 @@ function topLeft(board: Stones, opponentStones: Stones, activeGamer: EGamer): nu
     return hints;
 }
 
-function top(board: Stones, opponentStones: Stones, activeGamer: EGamer): number[] {
+function top(board: IStones, opponentStones: IStones, activeGamer: EGamer): number[] {
     const hints: number[] = [];
 
     for (const stone of opponentStones) {
@@ -89,7 +89,7 @@ function top(board: Stones, opponentStones: Stones, activeGamer: EGamer): number
     return hints;
 }
 
-function topRight(board: Stones, opponentStones: Stones, activeGamer: EGamer): number[] {
+function topRight(board: IStones, opponentStones: IStones, activeGamer: EGamer): number[] {
     const hints: number[] = [];
 
     for (const stone of opponentStones) {
@@ -105,7 +105,7 @@ function topRight(board: Stones, opponentStones: Stones, activeGamer: EGamer): n
         if (isFirstRowOrLastCol || board[toTopRightIndex]?.gamer) continue;
 
         let isActiveGamerLinked: boolean = false;
-        let toTop: Stone | undefined = stone;
+        let toTop: IStone | undefined = stone;
 
         while (!isActiveGamerLinked) {
             toTop = board.find(item => item.row == (toTop?.row || 0) + 1 && item.col == (toTop?.col || 0) - 1);
@@ -127,7 +127,7 @@ function topRight(board: Stones, opponentStones: Stones, activeGamer: EGamer): n
     return hints;
 }
 
-function right(board: Stones, opponentStones: Stones, activeGamer: EGamer): number[] {
+function right(board: IStones, opponentStones: IStones, activeGamer: EGamer): number[] {
     const hints: number[] = [];
 
     for (const stone of opponentStones) {
@@ -138,7 +138,7 @@ function right(board: Stones, opponentStones: Stones, activeGamer: EGamer): numb
         if (board[toRightIndex].gamer) continue;
 
         let isActiveGamerLinked: boolean = false;
-        let toLeft: Stone | undefined = stone;
+        let toLeft: IStone | undefined = stone;
 
         while (!isActiveGamerLinked) {
             toLeft = board.find(item => item.row == (stone?.row || 0) && item.col == (toLeft?.col || 0) - 1);
@@ -157,7 +157,7 @@ function right(board: Stones, opponentStones: Stones, activeGamer: EGamer): numb
     return hints;
 }
 
-function bottomRight(board: Stones, opponentStones: Stones, activeGamer: EGamer): number[] {
+function bottomRight(board: IStones, opponentStones: IStones, activeGamer: EGamer): number[] {
     const hints: number[] = [];
 
     for (const stone of opponentStones) {
@@ -171,7 +171,7 @@ function bottomRight(board: Stones, opponentStones: Stones, activeGamer: EGamer)
         if (board[toBottomRightIndex]?.gamer) continue;
 
         let isActiveGamerLinked: boolean = false;
-        let toBottomRight: Stone | undefined = stone;
+        let toBottomRight: IStone | undefined = stone;
 
         while (!isActiveGamerLinked) {
             toBottomRight = board.find(item => item.row == (toBottomRight?.row || 0) - 1 && item.col == (toBottomRight?.col || 0) - 1);
@@ -192,7 +192,7 @@ function bottomRight(board: Stones, opponentStones: Stones, activeGamer: EGamer)
     return hints;
 }
 
-function bottom(board: Stones, opponentStones: Stones, activeGamer: EGamer): number[] {
+function bottom(board: IStones, opponentStones: IStones, activeGamer: EGamer): number[] {
     const hints: number[] = [];
 
     for (const stone of opponentStones) {
@@ -228,7 +228,7 @@ function bottom(board: Stones, opponentStones: Stones, activeGamer: EGamer): num
     return hints;
 }
 
-function bottomLeft(board: Stones, opponentStones: Stones, activeGamer: EGamer): number[] {
+function bottomLeft(board: IStones, opponentStones: IStones, activeGamer: EGamer): number[] {
     const hints: number[] = [];
 
     for (const stone of opponentStones) {
@@ -241,7 +241,7 @@ function bottomLeft(board: Stones, opponentStones: Stones, activeGamer: EGamer):
 
         let isActiveGamerLinked: boolean = false;
 
-        let toBottomLeft: Stone | undefined = stone;
+        let toBottomLeft: IStone | undefined = stone;
 
         while (!isActiveGamerLinked) {
             toBottomLeft = board.find(item => item.row == (toBottomLeft?.row || 0) - 1 && item.col == (toBottomLeft?.col || 0) + 1);
@@ -260,7 +260,7 @@ function bottomLeft(board: Stones, opponentStones: Stones, activeGamer: EGamer):
     return hints;
 }
 
-function left(board: Stones, opponentStones: Stones, activeGamer: EGamer): number[] {
+function left(board: IStones, opponentStones: IStones, activeGamer: EGamer): number[] {
     const hints: number[] = [];
 
     for (const stone of opponentStones) {
@@ -272,7 +272,7 @@ function left(board: Stones, opponentStones: Stones, activeGamer: EGamer): numbe
         if (board[toLeftIndex].gamer) continue;
 
         let isActiveGamerLinked: boolean = false;
-        let toRight: Stone | undefined = stone;
+        let toRight: IStone | undefined = stone;
 
         while (!isActiveGamerLinked) {
             toRight = board.find(item => item.row == (stone?.row || 0) && item.col == (toRight?.col || 0) + 1);

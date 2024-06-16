@@ -1,11 +1,11 @@
 import { Schema, model } from "mongoose";
-import { EGamer, GamerStatus } from "@/enums";
+import { EGamer, EGamerStatus } from "@/enums";
 import { IGameDocument, IGamerDocument } from "@/types";
 
 const GamerSchema = new Schema<IGamerDocument>({
     id: { type: String, required: true },
     color: { type: String, enum: EGamer, required: true },
-    status: { type: String, enum: GamerStatus, required: true, default: GamerStatus.CONNECTED },
+    status: { type: String, enum: EGamerStatus, required: true, default: EGamerStatus.CONNECTED },
     canMove: { type: Boolean, default: true },
 }, { _id: false });
 

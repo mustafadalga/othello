@@ -1,7 +1,7 @@
 import { useParams, useRouter } from "next/navigation";
 import { useMutation } from "@apollo/client";
 import { RESTART_GAME, UPDATE_GAME } from "@/_graphql/mutations";
-import { LocalStorage } from "@/_enums";
+import { ELocalStorage } from "@/_enums";
 import graphQLError from "@/_utilities/graphQLError";
 
 export default function BoardOptions() {
@@ -11,7 +11,7 @@ export default function BoardOptions() {
         variables: {
             data: {
                 _id: id,
-                exitGamer: localStorage.getItem(LocalStorage.USERID),
+                exitGamer: localStorage.getItem(ELocalStorage.USERID),
                 isGameStarted: false,
                 isGameFinished: true,
                 moveOrder: null

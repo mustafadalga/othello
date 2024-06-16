@@ -3,13 +3,12 @@ export enum EGamer {
     WHITE = "WHITE"
 }
 
-export enum GamerStatus {
+export enum EGamerStatus {
     CONNECTED = "CONNECTED",
     DISCONNECTED = "DISCONNECTED",
-    EXITED = "EXITED"
 }
 
-export enum SubscriptionMessages {
+export enum ESubscriptionMessages {
     GAME_MOVED = "GAME_MOVED",
     GAME_STARTED = "GAME_STARTED",
     GAME_RESTARTED = "GAME_STARTED",

@@ -1,5 +1,5 @@
 import { IGame, IGamer } from "@/_types";
-import { EGamer, GamerStatus, LocalStorage } from "@/_enums";
+import { EGamer, EGamerStatus, ELocalStorage } from "@/_enums";
 
 export interface IActiveGamerData {
     isYourTurn: boolean;
@@ -8,14 +8,14 @@ export interface IActiveGamerData {
 
 
 export default function getActiveGamerData(game: IGame | undefined): IActiveGamerData {
-    if (!game?.moveOrder || !localStorage.getItem(LocalStorage.USERID)) {
+    if (!game?.moveOrder || !localStorage.getItem(ELocalStorage.USERID)) {
         return {
             isYourTurn: false,
             gamer: {
                 id: "",
                 color: "" as EGamer,
                 canMove: false,
-                status: GamerStatus.DISCONNECTED
+                status: EGamerStatus.DISCONNECTED
             }
         };
     }
@@ -23,7 +23,7 @@ export default function getActiveGamerData(game: IGame | undefined): IActiveGame
     const gamer = game.gamers.find(gamer => game.moveOrder == gamer.id)!;
 
     return {
-        isYourTurn: game.moveOrder === localStorage.getItem(LocalStorage.USERID),
+        isYourTurn: game.moveOrder === localStorage.getItem(ELocalStorage.USERID),
         gamer
     }
 }

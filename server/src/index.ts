@@ -15,7 +15,7 @@ import connectDB from "@/db";
 import typeDefs from "@/graphql/typeDefs";
 import resolvers from "@/graphql/resolvers";
 import pubsub from "@/pubsub";
-import { GamerStatus, SubscriptionMessages } from "@/enums";
+import { EGamerStatus, ESubscriptionMessages } from "@/enums";
 
 interface IConnection {
     gameID: string,
@@ -85,13 +85,13 @@ async function setup() {
 
     useServer({
         schema,
-        onConnect: (context) => handleConnection(context.connectionParams as unknown as IConnection,GamerStatus.CONNECTED),
-        onDisconnect: (context) => handleConnection(context.connectionParams as unknown as IConnection,GamerStatus.DISCONNECTED),
+        onConnect: (context) => handleConnection(context.connectionParams as unknown as IConnection,EGamerStatus.CONNECTED),
+        onDisconnect: (context) => handleConnection(context.connectionParams as unknown as IConnection,EGamerStatus.DISCONNECTED),
     }, wsServer);
 
-    function handleConnection({ gameID, userID }: IConnection,status:GamerStatus) {
+    function handleConnection({ gameID, userID }: IConnection,status:EGamerStatus) {
         if (gameID && userID) {
-            const triggerName = `${SubscriptionMessages.GAMER_CONNECTION}_${gameID}`;
+            const triggerName = `${ESubscriptionMessages.GAMER_CONNECTION}_${gameID}`;
             pubsub.publish(triggerName, {
                 gamerConnection: {
                     gameID,

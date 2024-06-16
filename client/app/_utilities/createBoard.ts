@@ -1,8 +1,8 @@
 import { DIMENSION } from "@/_constants";
-import { Stones } from "@/_types";
+import { IStones } from "@/_types";
 import { EGamer } from "@/_enums";
 
-export default function createBoard(): Stones {
+export default function createBoard(): IStones {
     const initialCells: Record<string, EGamer> = {
         "33": EGamer.WHITE,
         "34": EGamer.BLACK,
@@ -10,7 +10,7 @@ export default function createBoard(): Stones {
         "44": EGamer.WHITE,
     };
 
-    const board: Stones = [];
+    const board: IStones = [];
     for (let row = 0; row < DIMENSION; row++) {
         for (let col = 0; col < DIMENSION; col++) {
 

@@ -6,13 +6,13 @@ import { getMainDefinition } from "@apollo/client/utilities";
 import { IMove } from "@/_types";
 import { useGame } from "@/_providers/GameProvider";
 import { GraphQLWsLink } from "@apollo/client/link/subscriptions";
-import { LocalStorage } from "@/_enums";
+import { ELocalStorage } from "@/_enums";
 
 function createWsLink(gameID: string) {
     return new GraphQLWsLink(createClient({
         url: process.env.NEXT_PUBLIC_WS_URL as string,
         connectionParams: {
-            userID: localStorage.getItem(LocalStorage.USERID),
+            userID: localStorage.getItem(ELocalStorage.USERID),
             gameID
         }
     }))

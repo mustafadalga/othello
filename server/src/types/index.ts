@@ -1,10 +1,10 @@
-import { EGamer, GamerStatus } from "@/enums";
+import { EGamer, EGamerStatus } from "@/enums";
 import { Document, Schema } from "mongoose";
 
 export interface IGamer {
     id: string
     color: EGamer
-    status: GamerStatus,
+    status: EGamerStatus,
     canMove: boolean
 }
 

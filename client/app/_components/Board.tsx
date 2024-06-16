@@ -12,15 +12,15 @@ import { GAME_MOVED, GAME_RESTARTED, GAME_UPDATED, GAMERS_STONE_COUNT_UPDATED } 
 import getActiveGamerData, { IActiveGamerData } from "@/_utilities/getActiveGamerData";
 import useDeepCompareMemoize from "@/_hooks/useDeepCompareMemoize";
 import { DIMENSION } from "@/_constants";
-import { EGamer, LocalStorage } from "@/_enums";
+import { EGamer, ELocalStorage } from "@/_enums";
 import {
     IGame,
     IGamersStoneCount,
     IMove,
     IMutationUpdateGame,
     IMutationUpdateGameVariables,
-    Stone,
-    Stones,
+    IStone,
+    IStones,
     SubscriptionGameMovedData,
     SubscriptionGameRestartedData,
     SubscriptionGamersStoneCountUpdatedData,
@@ -32,7 +32,7 @@ import Cell from "./Cell";
 export default function Board() {
     const { id } = useParams()
     const [ game, setGame ] = useState<IGame>()
-    const [ board, setBoard ] = useState<Stones>(createBoard);
+    const [ board, setBoard ] = useState<IStones>(createBoard);
     const memoizedGame = useDeepCompareMemoize<IGame>(game as IGame);
     const activeMoveOrder = useDeepCompareMemoize<IActiveGamerData>(getActiveGamerData(game as IGame));
     const opponent = activeMoveOrder.gamer.color == EGamer.BLACK ? EGamer.WHITE : EGamer.BLACK;
@@ -137,7 +137,7 @@ export default function Board() {
         onError: graphQLError
     });
 
-    const handleHint = useCallback(async (move: Stone) => {
+    const handleHint = useCallback(async (move: IStone) => {
         if (!memoizedGame?.isGameStarted) {
             return toast.info("Game has not started yet!");
         }
@@ -149,7 +149,7 @@ export default function Board() {
         }
 
 
-        const reversedStone: Stone[] = reverseOpponentStones(board, move, activeMoveOrder.gamer.color);
+        const reversedStone: IStone[] = reverseOpponentStones(board, move, activeMoveOrder.gamer.color);
         const moves = [
             {
                 ...move,
@@ -251,7 +251,7 @@ function handleWinnerGamer(gamersStoneCount: IGamersStoneCount, updateGame: Muta
     let message: string = "";
     const whiteGamerID: string = gamersStoneCount.game.gamers.find(gamer => gamer.color == EGamer.WHITE)?.id!;
     const blackGamerID: string = gamersStoneCount.game.gamers.find(gamer => gamer.color == EGamer.BLACK)?.id!;
-    const userID: string = localStorage.getItem(LocalStorage.USERID)!;
+    const userID: string = localStorage.getItem(ELocalStorage.USERID)!;
     let winnerID: string | null = "";
 
     if (gamersStoneCount.count.BLACK > gamersStoneCount.count.WHITE) {

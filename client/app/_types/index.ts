@@ -1,17 +1,17 @@
-import { EGamer, GamerStatus } from "@/_enums";
+import { EGamer, EGamerStatus } from "@/_enums";
 
-export type Stone = {
+export type IStone = {
     row: number,
     col: number,
     gamer: EGamer | null
 }
 
-export type Stones = Stone[]
+export type IStones = IStone[]
 
 export interface IGamer {
     id: string
     color: EGamer
-    status: GamerStatus,
+    status: EGamerStatus,
     canMove: boolean
 }
 
@@ -63,7 +63,7 @@ export interface SubscriptionGamersStoneCountUpdatedData {
 export interface IGamerConnection {
     gameID: string
     userID: string
-    status: GamerStatus
+    status: EGamerStatus
 }
 
 export interface SubscriptionGamerConnection {

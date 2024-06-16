@@ -2,16 +2,16 @@
 import { ReactNode, useEffect, useState } from "react";
 import { GameProvider } from "./GameProvider";
 import { ApolloProviderWrapper } from "./ApolloProviderWrapper";
-import { LocalStorage } from "@/_enums";
+import { ELocalStorage } from "@/_enums";
 import generateID from "@/_utilities/generateID";
 
 function saveUserID() {
-    if (localStorage.getItem(LocalStorage.USERID)) {
+    if (localStorage.getItem(ELocalStorage.USERID)) {
         return;
     }
 
     const id: string = generateID();
-    localStorage.setItem(LocalStorage.USERID, id);
+    localStorage.setItem(ELocalStorage.USERID, id);
 }
 
 export default function RootProvider({ children }: { children: ReactNode }) {

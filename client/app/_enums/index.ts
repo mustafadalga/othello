@@ -3,15 +3,14 @@ export enum EGamer {
     WHITE = "WHITE"
 }
 
-export enum LocalStorage {
+export enum ELocalStorage {
     USERID = "userID",
     GAME_STARTED_MESSAGE_SHOWN = "gameStartedMessageShown",
 }
 
-export enum GamerStatus {
+export enum EGamerStatus {
     CONNECTED = "CONNECTED",
     DISCONNECTED = "DISCONNECTED",
-    EXITED = "EXITED"
 }
 
 

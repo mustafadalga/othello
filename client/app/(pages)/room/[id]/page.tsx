@@ -10,15 +10,15 @@ import graphQLError from "@/_utilities/graphQLError";
 import { GAME_UPDATED, GAMER_CONNECTION } from "@/_graphql/subscriptions";
 import { useGame } from "@/_providers/GameProvider";
 import { MAX_GAMER_COUNT } from "@/_constants";
-import { GamerStatus, LocalStorage } from "@/_enums";
+import { EGamerStatus, ELocalStorage } from "@/_enums";
 import { IGame, IGamerConnection, SubscriptionGamerConnection, SubscriptionGameUpdatedData } from "@/_types";
 
 
 function toggleLocalStorageGameStartedMessage(status: boolean) {
     if (status) {
-        localStorage.setItem(LocalStorage.GAME_STARTED_MESSAGE_SHOWN, "true");
+        localStorage.setItem(ELocalStorage.GAME_STARTED_MESSAGE_SHOWN, "true");
     } else {
-        localStorage.removeItem(LocalStorage.GAME_STARTED_MESSAGE_SHOWN);
+        localStorage.removeItem(ELocalStorage.GAME_STARTED_MESSAGE_SHOWN);
     }
 }
 
@@ -28,6 +28,7 @@ export default function Page() {
     const router = useRouter()
     const { setGameID } = useGame();
     const [ game, setGame ] = useState<IGame>();
+    const userID: string = localStorage.getItem(ELocalStorage.USERID)!
 
     const [ addPlayer ] = useMutation(ADD_PLAYER, {
         onError: graphQLError
@@ -40,8 +41,7 @@ export default function Page() {
             if (!game) return;
 
             setGame(game);
-            const gamerID: string = localStorage.getItem(LocalStorage.USERID)!;
-            const isAuthenticatedGamer: boolean = game.gamers.some(gamer => gamer.id == gamerID);
+            const isAuthenticatedGamer: boolean = game.gamers.some(gamer => gamer.id == userID);
 
             if (game.gamers.length == MAX_GAMER_COUNT && !isAuthenticatedGamer) {
                 return router.push("/");
@@ -58,7 +58,7 @@ export default function Page() {
                 variables: {
                     data: {
                         gameID: id,
-                        gamerID
+                        gamerID: userID
                     }
                 }
             })
@@ -80,7 +80,7 @@ export default function Page() {
         onData: ({ data: { data } }) => {
             if (!data?.game) return;
 
-            if (data.game.isGameStarted && !localStorage.getItem(LocalStorage.GAME_STARTED_MESSAGE_SHOWN)) {
+            if (data.game.isGameStarted && !localStorage.getItem(ELocalStorage.GAME_STARTED_MESSAGE_SHOWN)) {
                 toggleLocalStorageGameStartedMessage(true);
                 const message: string = "Game has started. You can start playing now."
                 toast.info(message, {
@@ -90,7 +90,7 @@ export default function Page() {
 
             if (data.game.isGameFinished) {
                 toggleLocalStorageGameStartedMessage(false);
-                if (data.game.exitGamer && data.game.exitGamer != localStorage.getItem(LocalStorage.USERID)) {
+                if (data.game.exitGamer && data.game.exitGamer != userID) {
                     const message: string = "Your opponent has exited.Game has finished!"
                     toast.info(message, {
                         toastId: message
@@ -110,12 +110,12 @@ export default function Page() {
             if (!data?.gamer || !game) return;
             const gamer = data?.gamer as IGamerConnection;
 
-            if (gamer.userID == localStorage.getItem(LocalStorage.USERID)) return;
+            if (gamer.userID == userID) return;
 
             const color = (game as IGame).gamers.find(gamerItem => gamerItem.id == gamer.userID)!.color;
             const message: string = `${color} gamer ${gamer.status.toLowerCase()}!`
 
-            if (gamer.status == GamerStatus.CONNECTED) {
+            if (gamer.status == EGamerStatus.CONNECTED) {
                 toast.success(message, {
                     toastId: message
                 })
