@@ -1,8 +1,8 @@
 import { Schema, model } from "mongoose";
-import mongoose from "mongoose";
 import { EGamer } from "@/enums";
+import { IMoveDocument } from "@/types";
 
-const schema = new mongoose.Schema({
+const schema = new Schema<IMoveDocument>({
     row: { type: Number, required: true },
     col: { type: Number, required: true },
     gamer: { type: String, enum: EGamer, required: true },
@@ -11,4 +11,4 @@ const schema = new mongoose.Schema({
 schema.index({ row: 1, col: 1, gameID: 1 }, { unique: true });
 
 
-export default model('Move', schema)
+export default model<IMoveDocument>('Move', schema)

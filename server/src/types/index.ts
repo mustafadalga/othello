@@ -1,11 +1,18 @@
 import { EGamer, GamerStatus } from "@/enums";
-import { Schema } from "mongoose";
+import { Document, Schema } from "mongoose";
 
 export interface IGamer {
     id: string
     color: EGamer
     status: GamerStatus,
     canMove: boolean
+}
+
+export interface IMove {
+    row: number
+    col: number
+    gamer: EGamer,
+    gameID: Schema.Types.ObjectId
 }
 
 export interface IGame {
@@ -15,12 +22,10 @@ export interface IGame {
     isGameStarted: boolean
     moveOrder: string
     winnerGamer: string
+    moves: IMove[]
     exitGamer: string
 }
 
-export interface IMove {
-    row: number
-    col: number
-    gamer: EGamer,
-    gameID: Schema.Types.ObjectId
-}
+export type IGamerDocument = IGamer & Document;
+export type IGameDocument = IGame & Document;
+export type IMoveDocument = IMove & Document;

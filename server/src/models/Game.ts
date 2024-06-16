@@ -1,7 +1,8 @@
 import { Schema, model } from "mongoose";
 import { EGamer, GamerStatus } from "@/enums";
+import { IGameDocument, IGamerDocument } from "@/types";
 
-const GamerSchema = new Schema({
+const GamerSchema = new Schema<IGamerDocument>({
     id: { type: String, required: true },
     color: { type: String, enum: EGamer, required: true },
     status: { type: String, enum: GamerStatus, required: true, default: GamerStatus.CONNECTED },
@@ -9,7 +10,7 @@ const GamerSchema = new Schema({
 }, { _id: false });
 
 
-const schema = new Schema({
+const schema = new Schema<IGameDocument>({
     gamers: [ GamerSchema],
     isGameFinished: { type: Boolean, default: false },
     isGameStarted: { type: Boolean, default: false },
@@ -19,4 +20,4 @@ const schema = new Schema({
     exitGamer: { type: String, default: null },
 });
 
-export default model('Game', schema)
+export default model<IGameDocument>('Game', schema)

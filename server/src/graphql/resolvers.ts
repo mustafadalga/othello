@@ -186,7 +186,8 @@ export default {
                 game.gamers.push({
                     id: data.gamerID,
                     color,
-                    status: GamerStatus.CONNECTED
+                    status: GamerStatus.CONNECTED,
+                    canMove: true
                 });
 
 
