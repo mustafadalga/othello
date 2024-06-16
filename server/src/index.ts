@@ -1,5 +1,6 @@
 import "module-alias/register.js"
 import dotenv from "dotenv";
+
 dotenv.config();
 import http from "http"
 import express from "express"
@@ -13,6 +14,13 @@ import { WebSocketServer } from 'ws';
 import connectDB from "@/db";
 import typeDefs from "@/graphql/typeDefs";
 import resolvers from "@/graphql/resolvers";
+import pubsub from "@/pubsub";
+import { GamerStatus, SubscriptionMessages } from "@/enums";
+
+interface IConnection {
+    gameID: string,
+    userID: string
+}
 
 
 async function setup() {
@@ -77,9 +85,25 @@ async function setup() {
 
     useServer({
         schema,
-        onConnect: () => console.log("Client connected...."),  // Log when a client connects
-        onDisconnect: () => console.log("Client disconnected"),  // Log when a client disconnects
+        onConnect: (context) => handleConnection(context.connectionParams as unknown as IConnection,GamerStatus.CONNECTED),
+        onDisconnect: (context) => handleConnection(context.connectionParams as unknown as IConnection,GamerStatus.DISCONNECTED),
     }, wsServer);
+
+    function handleConnection({ gameID, userID }: IConnection,status:GamerStatus) {
+        if (gameID && userID) {
+            const triggerName = `${SubscriptionMessages.GAMER_CONNECTION}_${gameID}`;
+            pubsub.publish(triggerName, {
+                gamerConnection: {
+                    gameID,
+                    userID,
+                    status
+                },
+            });
+
+        } else {
+            console.error("Missing gameID or userID in connectionParams");
+        }
+    }
 }
 
 

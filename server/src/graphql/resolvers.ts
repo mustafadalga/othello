@@ -422,11 +422,8 @@ export default {
         gamersStoneCountUpdated: {
             subscribe: (parent, { gameID }) => pubsub.asyncIterator([ `${SubscriptionMessages.GAMERS_STONE_COUNT_UPDATED}_${gameID}` ])
         },
-        gamerConnected: {
-            subscribe: (parent, { gameID }) => pubsub.asyncIterator([ `${SubscriptionMessages.GAMER_CONNECTED}_${gameID}` ])
+        gamerConnection: {
+            subscribe: (parent, { gameID }) => pubsub.asyncIterator([ `${SubscriptionMessages.GAMER_CONNECTION}_${gameID}` ])
         },
-        gamerDisconnected: {
-            subscribe: (parent, { gameID }) => pubsub.asyncIterator([ `${SubscriptionMessages.GAMER_DISCONNECTED}_${gameID}` ])
-        }
     }
 }

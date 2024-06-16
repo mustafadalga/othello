@@ -56,3 +56,13 @@ export const GAMERS_STONE_COUNT_UPDATED = gql`
         }
     }
 `
+
+export const GAMER_CONNECTION = gql`
+    subscription GamerConnection($gameID: ID!) {
+        gamer:gamerConnection(gameID: $gameID) {
+            gameID,
+            userID,
+            status
+        }
+    }
+`;

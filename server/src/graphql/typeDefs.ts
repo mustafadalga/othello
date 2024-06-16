@@ -29,8 +29,7 @@ type Subscription {
     gameUpdated(gameID:ID!):Game!
     gameMoved(gameID: ID!): [Move]
     gamersStoneCountUpdated(gameID:ID!):GamersStoneCount
-    gamerConnected:GamerConnection!
-    gamerDisconnected:GamerConnection!
+    gamerConnection(gameID:ID!):GamerConnection!
 }
 
 type Game {
@@ -59,7 +58,9 @@ type Move {
 }
 
 type GamerConnection {
+    gameID:String!
     userID:String!
+    status:String!
 }
 
 type StoneCount {

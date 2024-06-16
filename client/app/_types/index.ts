@@ -60,6 +60,17 @@ export interface SubscriptionGamersStoneCountUpdatedData {
     game: IGamersStoneCount | undefined
 }
 
+export interface IGamerConnection {
+    gameID: string
+    userID: string
+    status: GamerStatus
+}
+
+export interface SubscriptionGamerConnection {
+    gamer: IGamerConnection | undefined
+}
+
+
 export interface IMutationUpdateGameVariables {
     data: {
         _id: string,

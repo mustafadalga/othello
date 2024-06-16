@@ -1,27 +1,18 @@
 "use client";
 import { useParams, useRouter } from 'next/navigation'
-import { useCallback, useEffect } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import { useMutation, useQuery, useSubscription } from "@apollo/client";
 import GameScreen from "@/_components/GameScreen";
 import { ADD_PLAYER } from "@/_graphql/mutations";
-import generateID from "@/_utilities/generateID";
 import { GET_GAME_BY_ID } from "@/_graphql/queries";
 import graphQLError from "@/_utilities/graphQLError";
-import { GAME_UPDATED } from "@/_graphql/subscriptions";
+import { GAME_UPDATED, GAMER_CONNECTION } from "@/_graphql/subscriptions";
+import { useGame } from "@/_providers/GameProvider";
 import { MAX_GAMER_COUNT } from "@/_constants";
-import { LocalStorage } from "@/_enums";
-import { IGame, SubscriptionGameUpdatedData } from "@/_types";
+import { GamerStatus, LocalStorage } from "@/_enums";
+import { IGame, IGamerConnection, SubscriptionGamerConnection, SubscriptionGameUpdatedData } from "@/_types";
 
-
-function saveUserID() {
-    if (localStorage.getItem(LocalStorage.USERID)) {
-        return;
-    }
-
-    const id: string = generateID();
-    localStorage.setItem(LocalStorage.USERID, id);
-}
 
 function toggleLocalStorageGameStartedMessage(status: boolean) {
     if (status) {
@@ -35,6 +26,9 @@ function toggleLocalStorageGameStartedMessage(status: boolean) {
 export default function Page() {
     const { id } = useParams();
     const router = useRouter()
+    const { setGameID } = useGame();
+    const [ game, setGame ] = useState<IGame>();
+
     const [ addPlayer ] = useMutation(ADD_PLAYER, {
         onError: graphQLError
     });
@@ -43,6 +37,9 @@ export default function Page() {
             id,
         },
         onCompleted: ({ game }) => {
+            if (!game) return;
+
+            setGame(game);
             const gamerID: string = localStorage.getItem(LocalStorage.USERID)!;
             const isAuthenticatedGamer: boolean = game.gamers.some(gamer => gamer.id == gamerID);
 
@@ -106,9 +103,33 @@ export default function Page() {
         onError: graphQLError
     })
 
+    useSubscription<SubscriptionGamerConnection>(GAMER_CONNECTION, {
+        variables: { gameID: id },
+        onData: ({ data: { data } }) => {
+
+            if (!data?.gamer || !game) return;
+            const gamer = data?.gamer as IGamerConnection;
+
+            if (gamer.userID == localStorage.getItem(LocalStorage.USERID)) return;
+
+            const color = (game as IGame).gamers.find(gamerItem => gamerItem.id == gamer.userID)!.color;
+            const message: string = `${color} gamer ${gamer.status.toLowerCase()}!`
+
+            if (gamer.status == GamerStatus.CONNECTED) {
+                toast.success(message, {
+                    toastId: message
+                })
+            } else {
+                toast.error(message, {
+                    toastId: message
+                })
+            }
+        },
+        onError: graphQLError
+    });
 
     useEffect(() => {
-        saveUserID();
+        setGameID(id as string);
     }, [])
 
     return <GameScreen/>;
