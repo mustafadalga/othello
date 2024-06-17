@@ -11,8 +11,9 @@ import { CREATE_MOVES, UPDATE_GAME } from "@/_graphql/mutations";
 import { GAME_MOVED, GAME_RESTARTED, GAME_UPDATED, GAMERS_STONE_COUNT_UPDATED } from "@/_graphql/subscriptions";
 import getActiveGamerData, { IActiveGamerData } from "@/_utilities/getActiveGamerData";
 import useDeepCompareMemoize from "@/_hooks/useDeepCompareMemoize";
+import useGameResultModal from "@/_store/useGameResultModal";
 import { DIMENSION } from "@/_constants";
-import { EGamer, ELocalStorage } from "@/_enums";
+import { EGamer } from "@/_enums";
 import {
     IGame,
     IGamersStoneCount,
@@ -26,12 +27,14 @@ import {
     SubscriptionGamersStoneCountUpdatedData,
     SubscriptionGameUpdatedData
 } from "@/_types";
+import GameResultModal from "@/_components/modal/GameResultModal";
 import Cell from "./Cell";
 
 
 export default function Board() {
     const { id } = useParams()
     const [ game, setGame ] = useState<IGame>()
+    const { onOpen } = useGameResultModal()
     const [ board, setBoard ] = useState<IStones>(createBoard);
     const memoizedGame = useDeepCompareMemoize<IGame>(game as IGame);
     const activeMoveOrder = useDeepCompareMemoize<IActiveGamerData>(getActiveGamerData(game as IGame));
@@ -40,6 +43,7 @@ export default function Board() {
     const hints = activeMoveOrder.isYourTurn ? createHints(board, opponentStones, activeMoveOrder.gamer.color) : [];
     const hasValidMove: boolean = !!hints.length;
     const isAllStoneReversed: boolean = board.every(cell => cell.gamer);
+    const winnerGamer: EGamer | null = game?.winnerGamer ? game.gamers.find(gamer => gamer.id == game.winnerGamer)?.color || null : null;
 
     useQuery<{ game: IGame }>(GET_GAME_BY_ID, {
         variables: {
@@ -48,6 +52,9 @@ export default function Board() {
         onCompleted: ({ game }) => {
             if (game) {
                 setGame(game);
+                if (game.isGameFinished) {
+                    onOpen();
+                }
             }
         }
     })
@@ -92,6 +99,9 @@ export default function Board() {
         onData: ({ data: { data } }) => {
             if (data?.game) {
                 setGame(data.game);
+                if (data.game.isGameFinished) {
+                    onOpen();
+                }
             }
         },
         onError: graphQLError
@@ -222,13 +232,16 @@ export default function Board() {
     }, [ memoizedGame, activeMoveOrder, hasValidMove, isAllStoneReversed ])
 
     return (
-        <div className="grid grid-cols-8 grid-rows-8 max-w-xl mx-4 sm:max-0 bg-[#038947] border border-gray-900">
+        <section
+            className="relative grid grid-cols-8 grid-rows-8 max-w-xl mx-4 sm:max-0 bg-[#038947] border border-gray-900">
             {board.map((cell, index) => <Cell key={`${cell.row}${cell.col}$`}
                                               onClick={handleHint}
                                               hasHint={hints.includes(index)}
                                               stone={cell}
                                               activeGamer={activeMoveOrder.gamer.color}/>)}
-        </div>
+
+            { game?.isGameFinished && <GameResultModal winnerGamer={winnerGamer}/> }
+        </section>
     )
 }
 
@@ -249,20 +262,14 @@ function handleWinnerGamer(gamersStoneCount: IGamersStoneCount, updateGame: Muta
 
     if (!isAllStoneReversed) return;
 
-    let message: string = "";
     const whiteGamerID: string = gamersStoneCount.game.gamers.find(gamer => gamer.color == EGamer.WHITE)?.id!;
     const blackGamerID: string = gamersStoneCount.game.gamers.find(gamer => gamer.color == EGamer.BLACK)?.id!;
-    const userID: string = localStorage.getItem(ELocalStorage.USERID)!;
-    let winnerID: string | null = "";
+    let winnerID: string | null = null;
 
     if (gamersStoneCount.count.BLACK > gamersStoneCount.count.WHITE) {
-        message = blackGamerID == userID ? "Game finished! You won! 🎉" : "Game finished! You lost! 😢";
         winnerID = blackGamerID;
     } else if (gamersStoneCount.count.WHITE > gamersStoneCount.count.BLACK) {
-        message = whiteGamerID == userID ? "Game finished! You won! 🎉" : "Game finished! You lost! 😢"
         winnerID = whiteGamerID;
-    } else {
-        message = "Game finished! It's a tie! 🤝"
     }
 
     updateGame({
@@ -272,12 +279,8 @@ function handleWinnerGamer(gamersStoneCount: IGamersStoneCount, updateGame: Muta
                 isGameStarted: false,
                 isGameFinished: true,
                 moveOrder: null,
-                winnerGamer: winnerID,
+                winnerGamer: winnerID as string,
             }
         }
     })
-
-    toast.success(message, {
-        toastId: message
-    });
 }
