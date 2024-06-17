@@ -125,7 +125,7 @@ export default function Board() {
         onError: graphQLError
     });
 
-  useSubscription<SubscriptionGamersStoneCountUpdatedData>(GAMERS_STONE_COUNT_UPDATED, {
+    useSubscription<SubscriptionGamersStoneCountUpdatedData>(GAMERS_STONE_COUNT_UPDATED, {
         variables: {
             gameID: id
         },
@@ -147,7 +147,6 @@ export default function Board() {
         if (!activeMoveOrder.isYourTurn) {
             return toast.warn("It's not your turn!");
         }
-
 
         const reversedStone: IStone[] = reverseOpponentStones(board, move, activeMoveOrder.gamer.color);
         const moves = [
@@ -224,9 +223,11 @@ export default function Board() {
 
     return (
         <div className="grid grid-cols-8 grid-rows-8 max-w-xl mx-4 sm:max-0 bg-[#038947] border border-gray-900">
-            {board.map((c, index) => <Cell key={`${c.row}${c.col}$`} onClick={handleHint}
-                                           hasHint={hints.includes(index)}
-                                           stone={c}/>)}
+            {board.map((cell, index) => <Cell key={`${cell.row}${cell.col}$`}
+                                              onClick={handleHint}
+                                              hasHint={hints.includes(index)}
+                                              stone={cell}
+                                              activeGamer={activeMoveOrder.gamer.color}/>)}
         </div>
     )
 }

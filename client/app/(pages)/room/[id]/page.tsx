@@ -112,7 +112,9 @@ export default function Page() {
 
             if (gamer.userID == userID) return;
 
-            const color = (game as IGame).gamers.find(gamerItem => gamerItem.id == gamer.userID)!.color;
+            const color = (game as IGame).gamers.find(gamerItem => gamerItem.id == gamer.userID)?.color;
+            if (!color) return;
+            
             const message: string = `${color} gamer ${gamer.status.toLowerCase()}!`
 
             if (gamer.status == EGamerStatus.CONNECTED) {

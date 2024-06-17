@@ -1,19 +1,34 @@
+import { useState, useCallback } from "react";
+import { IStone } from "@/_types";
+import { EGamer } from "@/_enums";
 import Stone from "./Stone";
 import Hint from "./Hint";
-import { IStone } from "@/_types";
 
 interface Props {
     stone: IStone,
     hasHint: boolean,
+    activeGamer: EGamer,
     onClick: (stone: IStone) => void
 }
 
-export default function Cell({ stone, hasHint, onClick }: Props) {
+export default function Cell({ stone, hasHint, activeGamer, onClick }: Props) {
+    const [ isHintClicked, setIsHintClicked ] = useState(false);
+
+    const handleClick = useCallback(() => {
+        if (!hasHint) return;
+
+        setIsHintClicked(true)
+        onClick(stone);
+    }, [ hasHint, stone, onClick ])
+
+
     return (
-        <div onClick={hasHint ? () => onClick(stone) : undefined}
+        <div onClick={handleClick}
              className="grid place-items-center border border-gray-900 p-2.5 sm:p-4 group">
+
             {stone.gamer && <Stone gamer={stone.gamer}/>}
-            {hasHint && <Hint/>}
+
+            {hasHint && <Hint isHintClicked={isHintClicked} activeGamer={activeGamer}/>}
         </div>
     )
 }
