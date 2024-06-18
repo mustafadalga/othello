@@ -7,30 +7,33 @@ const variants = {
 };
 
 
-export default function Stone({ gamer }: {
+export default function Stone({ gamer, isActive }: {
     gamer: EGamer,
+    isActive: boolean
 }) {
     return (
         <div className="bg-transparent w-6 h-6 lg:w-8 lg:h-8 xl:w-10 xl:h-10">
             <AnimatePresence mode="wait">
                 {gamer == EGamer.BLACK && (
                     <motion.div
-                        className="perspective relative w-full h-full transform-style-3d rounded-full bg-black-gradient"
+                        className="perspective relative grid place-items-center w-full h-full transform-style-3d rounded-full bg-black-gradient"
                         animate="backVisible"
                         initial="frontVisible"
                         exit="frontVisible"
                         variants={variants}
                         transition={{ duration: 0.5, transformStyle: "preserve-3d" }}>
+                        <div className={`p-0.5 sm:p-1 rounded-full ${isActive ? 'bg-green-600' : ''}`}></div>
                     </motion.div>
                 )}
                 {gamer == EGamer.WHITE && (
                     <motion.div
-                        className="perspective relative w-full h-full transform-style-3d rounded-full bg-white-gradient"
+                        className="perspective relative grid place-items-center w-full h-full transform-style-3d rounded-full bg-white-gradient"
                         animate="frontVisible"
                         initial="backVisible"
                         exit="backVisible"
                         variants={variants}
                         transition={{ duration: 0.5, transformStyle: "preserve-3d" }}>
+                        <div className={`p-0.5 sm:p-1 rounded-full ${isActive ? 'bg-green-600' : ''}`}></div>
                     </motion.div>
                 )}
             </AnimatePresence>
