@@ -9,7 +9,7 @@ const variants = {
 
 export default function Stone({ gamer, isActive }: {
     gamer: EGamer,
-    isActive: boolean
+    isActive?: boolean
 }) {
     return (
         <div className="bg-transparent w-6 h-6 lg:w-8 lg:h-8 xl:w-10 xl:h-10">
