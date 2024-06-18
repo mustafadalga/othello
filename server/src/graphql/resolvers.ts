@@ -348,9 +348,9 @@ export default {
                     throw new Error('Game not found');
                 }
 
-                if (!game.isGameStarted) return game;
+                if (game.gamers.length != MAX_GAMER_COUNT) return game;
 
-                restartGame(game);
+                await restartGame(game);
                 const allMoves = await restartMoves(_id);
                 pubsub.publish(`${ESubscriptionMessages.GAME_MOVED}_${_id}`, { gameMoved: allMoves });
                 pubsub.publish(`${ESubscriptionMessages.GAMERS_STONE_COUNT_UPDATED}_${_id}`, {
