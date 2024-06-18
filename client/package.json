@@ -19,6 +19,7 @@
     "react": "^18",
     "react-dom": "^18",
     "react-toastify": "^10.0.5",
+    "use-animated-number": "^0.0.4",
     "zustand": "^4.5.2"
   },
   "devDependencies": {

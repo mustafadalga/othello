@@ -2,6 +2,7 @@ import { useParams } from "next/navigation";
 import { useState } from "react";
 import { useQuery, useSubscription } from "@apollo/client";
 import { capitalize } from "lodash";
+import useAnimatedNumber from "use-animated-number";
 import { EGamer } from "@/_enums";
 import { GET_GAME_BY_ID, GET_GAMERS_STONE_COUNT } from "@/_graphql/queries";
 import { GAME_UPDATED, GAMERS_STONE_COUNT_UPDATED } from "@/_graphql/subscriptions";
@@ -24,6 +25,9 @@ export default function GameStatus() {
         [EGamer.WHITE]: 0,
         [EGamer.BLACK]: 0
     });
+    const animatedBlackGamerCount: string = useAnimatedNumber(gamerCount.BLACK,300);
+    const animatedWhiteGamerCount: string = useAnimatedNumber(gamerCount.WHITE,300);
+
     useQuery<{ game: IGame }>(GET_GAME_BY_ID, {
         variables: {
             id,
@@ -75,12 +79,12 @@ export default function GameStatus() {
                 <div className="flex items-center gap-3">
                     <Stone gamer={EGamer.BLACK}
                            isActive={activeMoveOrder.gamer.color == EGamer.BLACK}/>
-                    <span className="text-xs lg:text-sm"> {gamerCount.BLACK} </span>
+                    <span className="text-xs lg:text-sm"> {animatedBlackGamerCount} </span>
                 </div>
                 <div className="flex items-center gap-3">
                     <Stone gamer={EGamer.WHITE}
                            isActive={activeMoveOrder.gamer.color == EGamer.WHITE}/>
-                    <span className="text-xs lg:text-sm"> {gamerCount.WHITE} </span>
+                    <span className="text-xs lg:text-sm"> {animatedWhiteGamerCount} </span>
                 </div>
             </div>
 
