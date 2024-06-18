@@ -1,6 +1,6 @@
 import { IStone, IStones } from "@/_types";
 import { EGamer } from "@/_enums";
-import { DIMENSION } from "@/_constants";
+import { BOARD_DIMENSION } from "@/_constants";
 
 export default function createHints(board: IStones, opponentStones: IStones, activeGamer: EGamer) {
     return [
@@ -22,8 +22,8 @@ function topLeft(board: IStones, opponentStones: IStones, activeGamer: EGamer): 
 
         const rowIndex: number = stone.row;
         const colIndex: number = stone.col;
-        const index: number = rowIndex * DIMENSION + colIndex;
-        const toTopLeftIndex: number = (index - DIMENSION - 1);
+        const index: number = rowIndex * BOARD_DIMENSION + colIndex;
+        const toTopLeftIndex: number = (index - BOARD_DIMENSION - 1);
         const isFirstCol: boolean = colIndex === 0;
 
         if (isFirstCol || board[toTopLeftIndex]?.gamer) continue;
@@ -57,8 +57,8 @@ function top(board: IStones, opponentStones: IStones, activeGamer: EGamer): numb
     for (const stone of opponentStones) {
         if (stone.row == 0) continue;
 
-        const index: number = (stone.row) * DIMENSION + (stone.col);
-        const toTopIndex: number = index - DIMENSION;
+        const index: number = (stone.row) * BOARD_DIMENSION + (stone.col);
+        const toTopIndex: number = index - BOARD_DIMENSION;
 
         if (board[toTopIndex].gamer) continue;
 
@@ -67,7 +67,7 @@ function top(board: IStones, opponentStones: IStones, activeGamer: EGamer): numb
 
         while (!isActiveGamerLinked) {
             toBottomRow += 1;
-            if (toBottomRow > DIMENSION - 1) {
+            if (toBottomRow > BOARD_DIMENSION - 1) {
                 break;
             }
             const toBottomRowItem = board.find(item => item.row == toBottomRow && item.col == stone.col);
@@ -97,10 +97,10 @@ function topRight(board: IStones, opponentStones: IStones, activeGamer: EGamer):
 
         const rowIndex: number = stone.row;
         const colIndex: number = stone.col;
-        const index: number = rowIndex * DIMENSION + colIndex;
+        const index: number = rowIndex * BOARD_DIMENSION + colIndex;
 
-        const toTopRightIndex: number = (index - DIMENSION + 1)
-        const isFirstRowOrLastCol: boolean = rowIndex === 0 || colIndex === DIMENSION - 1;
+        const toTopRightIndex: number = (index - BOARD_DIMENSION + 1)
+        const isFirstRowOrLastCol: boolean = rowIndex === 0 || colIndex === BOARD_DIMENSION - 1;
 
         if (isFirstRowOrLastCol || board[toTopRightIndex]?.gamer) continue;
 
@@ -131,8 +131,8 @@ function right(board: IStones, opponentStones: IStones, activeGamer: EGamer): nu
     const hints: number[] = [];
 
     for (const stone of opponentStones) {
-        if (stone.col == DIMENSION - 1) continue;
-        const index: number = (stone.row) * DIMENSION + (stone.col);
+        if (stone.col == BOARD_DIMENSION - 1) continue;
+        const index: number = (stone.row) * BOARD_DIMENSION + (stone.col);
         const toRightIndex: number = index + 1;
 
         if (board[toRightIndex].gamer) continue;
@@ -161,12 +161,12 @@ function bottomRight(board: IStones, opponentStones: IStones, activeGamer: EGame
     const hints: number[] = [];
 
     for (const stone of opponentStones) {
-        if (stone.row >= DIMENSION - 1 || stone.col == DIMENSION - 1) continue;
+        if (stone.row >= BOARD_DIMENSION - 1 || stone.col == BOARD_DIMENSION - 1) continue;
 
         const rowIndex: number = stone.row;
         const colIndex: number = stone.col;
-        const index: number = rowIndex * DIMENSION + colIndex;
-        const toBottomRightIndex: number = index + DIMENSION + 1;
+        const index: number = rowIndex * BOARD_DIMENSION + colIndex;
+        const toBottomRightIndex: number = index + BOARD_DIMENSION + 1;
 
         if (board[toBottomRightIndex]?.gamer) continue;
 
@@ -196,10 +196,10 @@ function bottom(board: IStones, opponentStones: IStones, activeGamer: EGamer): n
     const hints: number[] = [];
 
     for (const stone of opponentStones) {
-        if (stone.row >= DIMENSION - 1) continue;
+        if (stone.row >= BOARD_DIMENSION - 1) continue;
 
-        const index: number = (stone.row) * DIMENSION + (stone.col);
-        const toBottomIndex: number = index + DIMENSION;
+        const index: number = (stone.row) * BOARD_DIMENSION + (stone.col);
+        const toBottomIndex: number = index + BOARD_DIMENSION;
 
         if (board[toBottomIndex].gamer) continue;
 
@@ -232,10 +232,10 @@ function bottomLeft(board: IStones, opponentStones: IStones, activeGamer: EGamer
     const hints: number[] = [];
 
     for (const stone of opponentStones) {
-        if (stone.row >= DIMENSION - 1 || stone.col == 0) continue;
+        if (stone.row >= BOARD_DIMENSION - 1 || stone.col == 0) continue;
 
-        const index: number = stone.row * DIMENSION + stone.col;
-        const toBottomLeftIndex: number = index + DIMENSION - 1;
+        const index: number = stone.row * BOARD_DIMENSION + stone.col;
+        const toBottomLeftIndex: number = index + BOARD_DIMENSION - 1;
 
         if (board[toBottomLeftIndex]?.gamer) continue;
 
@@ -265,7 +265,7 @@ function left(board: IStones, opponentStones: IStones, activeGamer: EGamer): num
 
     for (const stone of opponentStones) {
         if (stone.col == 0) continue;
-        const index = (stone.row) * DIMENSION + (stone.col);
+        const index = (stone.row) * BOARD_DIMENSION + (stone.col);
 
         const toLeftIndex: number = index - 1;
 

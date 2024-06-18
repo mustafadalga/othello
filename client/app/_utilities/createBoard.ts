@@ -1,4 +1,4 @@
-import { DIMENSION } from "@/_constants";
+import { BOARD_DIMENSION } from "@/_constants";
 import { IStones } from "@/_types";
 import { EGamer } from "@/_enums";
 
@@ -11,8 +11,8 @@ export default function createBoard(): IStones {
     };
 
     const board: IStones = [];
-    for (let row = 0; row < DIMENSION; row++) {
-        for (let col = 0; col < DIMENSION; col++) {
+    for (let row = 0; row < BOARD_DIMENSION; row++) {
+        for (let col = 0; col < BOARD_DIMENSION; col++) {
 
             const gamer = initialCells[`${row}${col}`] as EGamer || null
             board.push({

@@ -1,17 +1,23 @@
 import { GraphQLError } from 'graphql';
 import { MongoError } from "mongodb";
-import { isValidObjectId, Types } from "mongoose";
+import { isValidObjectId, ObjectId, Types } from "mongoose";
 import Game from "@/models/Game";
 import Move from "@/models/Move"
+import handleWinnerGamer from "@/utilities/handleWinnerGamer";
+import updateGameMoveOrder from "@/utilities/updateGameMoveOrder";
+import bulkUpdateMoves from "@/utilities/bulkUpdateMoves";
+import isAllStoneReversed from "@/utilities/isAllStoneReversed";
+import restartMoves from "@/utilities/restartMoves";
+import restartGame from "@/utilities/restartGame";
+import getNextGamerSide from "@/utilities/getNextGamerSide";
+import getGamersStoneCount from "@/utilities/getGamersStoneCount";
+import pubsub from "@/pubsub"
 import {
     MAX_GAMER_COUNT,
     INITIAL__STONES,
-    INITIAL_GAMER_STONE_COUNT,
 } from "@/constansts";
-import getNextGamerSide from "@/utilities/getNextGamerSide";
-import pubsub from "@/pubsub"
 import { EGamer, EGamerStatus, ESubscriptionMessages } from "@/enums";
-import type { IGamer, IMove } from "@/types"
+import type { IGameDocument, IGamer, IMove } from "@/types"
 
 interface AddPlayer {
     gameID: string
@@ -19,7 +25,7 @@ interface AddPlayer {
 }
 
 interface UpdateGame {
-    _id: string
+    _id: ObjectId
     isGameFinished: boolean
     isGameStarted: boolean
     moveOrder: string
@@ -118,10 +124,7 @@ export default {
 
                 return {
                     game: game,
-                    count: {
-                        [EGamer.BLACK]: moves.filter(move => move.gamer == EGamer.BLACK).length,
-                        [EGamer.WHITE]: moves.filter(move => move.gamer == EGamer.WHITE).length,
-                    }
+                    count: getGamersStoneCount(moves)
                 }
 
             } catch (error) {
@@ -248,12 +251,27 @@ export default {
                     throw new Error('Game not found');
                 }
 
-                if (data.isGameFinished !== undefined) game.isGameFinished = data.isGameFinished;
                 if (data.isGameStarted !== undefined) game.isGameStarted = data.isGameStarted;
                 if (data.moveOrder !== undefined) game.moveOrder = data.moveOrder;
                 if (data.winnerGamer !== undefined) game.winnerGamer = data.winnerGamer;
                 if (data.exitGamer !== undefined) game.exitGamer = data.exitGamer;
                 if (data.gamers !== undefined) game.gamers = data.gamers;
+
+
+                await (async function handleGameFinish(){
+                    if (data.isGameStarted == undefined) return;
+
+                    game.isGameFinished = true;
+                    handleWinnerGamer(game, data._id);
+                    const allMoves = await Move.find({ gameID: data._id });
+                    // Send players' stone counts to subscribers for winner calculation upon game completion
+                    pubsub.publish(`${ESubscriptionMessages.GAMERS_STONE_COUNT_UPDATED}_${data._id}`, {
+                        gamersStoneCountUpdated: {
+                            game,
+                            count: getGamersStoneCount(allMoves)
+                        }
+                    });
+                })()
 
                 pubsub.publish(`${ESubscriptionMessages.GAME_UPDATED}_${data._id}`, { gameUpdated: game });
 
@@ -273,36 +291,26 @@ export default {
         },
         createMoves: async (parent: unknown, { moves }: { moves: IMove[] }) => {
             try {
-                const gameID = moves[0].gameID;
-                const gamer = moves[0].gamer
-                const updateGameMoveOrder = async () => {
-                    const game = await Game.findById({ _id: gameID });
-                    const index = game.gamers.findIndex(gamerItem => gamerItem.color == gamer);
-                    game.moveOrder = game.gamers[index == 0 ? 1 : 0].id
-                    return await game.save();
-                }
-                const bulkUpdateMoves = () => {
-                    return Move.bulkWrite(moves.map(move => ({
-                        updateOne: {
-                            filter: { row: move.row, col: move.col, gameID: move.gameID },
-                            update: { $set: move },
-                            upsert: true
-                        }
-                    })))
+                const gameID: ObjectId = moves[0].gameID;
+                const gamer: EGamer = moves[0].gamer;
+                const handleGameFinish = async () => {
+                    const game = await Game.findById(gameID);
+                    game.isGameFinished = true;
+                    game.isGameStarted = false;
+                    game.moveOrder = null;
+                    return handleWinnerGamer(game, gameID)
                 }
 
-                const [ _, gameResponse ] = await Promise.all([ bulkUpdateMoves(), updateGameMoveOrder() ]);
+                await bulkUpdateMoves(moves);
+                const game: IGameDocument = await isAllStoneReversed(gameID) ? await handleGameFinish() : await updateGameMoveOrder(gameID, gamer)
                 const allMoves = await Move.find({ gameID });
 
                 pubsub.publish(`${ESubscriptionMessages.GAME_MOVED}_${gameID}`, { gameMoved: moves });
-                pubsub.publish(`${ESubscriptionMessages.GAME_UPDATED}_${gameID}`, { gameUpdated: gameResponse });
+                pubsub.publish(`${ESubscriptionMessages.GAME_UPDATED}_${gameID}`, { gameUpdated: game });
                 pubsub.publish(`${ESubscriptionMessages.GAMERS_STONE_COUNT_UPDATED}_${gameID}`, {
                     gamersStoneCountUpdated: {
-                        game: gameResponse,
-                        count: {
-                            [EGamer.BLACK]: allMoves.filter(move => move.gamer == EGamer.BLACK).length,
-                            [EGamer.WHITE]: allMoves.filter(move => move.gamer == EGamer.WHITE).length,
-                        }
+                        game,
+                        count: getGamersStoneCount(allMoves)
                     }
                 });
 
@@ -320,7 +328,7 @@ export default {
                 });
             }
         },
-        restartGame: async (parent: unknown, { _id }: { _id: string }) => {
+        restartGame: async (parent: unknown, { _id }: { _id: ObjectId }) => {
             if (!_id) {
                 throw new GraphQLError("Game id is required", {
                     extensions: { code: 'BAD_USER_INPUT' },
@@ -340,57 +348,19 @@ export default {
                     throw new Error('Game not found');
                 }
 
-                if (game.gamers.length != MAX_GAMER_COUNT) return game;
+                if (!game.isGameStarted) return game;
 
-                const restartGame = () => {
-                    game.moveOrder = game.gamers.find(gamer => gamer.color == EGamer.BLACK)?.id || null;
-                    game.gamers.forEach(gamer => gamer.canMove = true)
-                    game.isGameStarted = true;
-                    game.isGameFinished = false;
-                    game.winnerGamer = null;
-                    game.exitGamer = null;
-                    game.save();
-                };
-
-                const restartMoves = async () => {
-                    const bulkOps = [
-                        // Add the delete operation to remove all moves for the specific gameID
-                        {
-                            deleteMany: {
-                                filter: { gameID: _id }
-                            }
-                        },
-                        // Add insert operations for each initial stone
-                        ...INITIAL__STONES.map(stone => ({
-                            insertOne: {
-                                document: {
-                                    gameID: _id,
-                                    row: stone.row,
-                                    col: stone.col,
-                                    gamer: stone.gamer
-                                }
-                            }
-                        }))
-                    ];
-
-                    await Move.bulkWrite(bulkOps);
-                    return await Move.find({ gameID: _id });
-                }
-
-                restartGame();
-                const allMoves = await restartMoves();
-                pubsub.publish(`${ESubscriptionMessages.GAME_UPDATED}_${_id}`, { gameUpdated: game });
-                pubsub.publish(`${ESubscriptionMessages.GAME_RESTARTED}_${_id}`, { gameRestarted: game });
+                restartGame(game);
+                const allMoves = await restartMoves(_id);
                 pubsub.publish(`${ESubscriptionMessages.GAME_MOVED}_${_id}`, { gameMoved: allMoves });
                 pubsub.publish(`${ESubscriptionMessages.GAMERS_STONE_COUNT_UPDATED}_${_id}`, {
                     gamersStoneCountUpdated: {
                         game,
-                        count: {
-                            [EGamer.BLACK]: INITIAL_GAMER_STONE_COUNT,
-                            [EGamer.WHITE]: INITIAL_GAMER_STONE_COUNT,
-                        }
+                        count: getGamersStoneCount(allMoves)
                     }
                 });
+                pubsub.publish(`${ESubscriptionMessages.GAME_UPDATED}_${_id}`, { gameUpdated: game });
+                pubsub.publish(`${ESubscriptionMessages.GAME_RESTARTED}_${_id}`, { gameRestarted: game });
 
                 return game;
             } catch (error) {

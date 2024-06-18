@@ -3,6 +3,7 @@ export const MAX_GAMER_COUNT: number = 2;
 import { EGamer } from "@/enums";
 
 export const INITIAL_GAMER_STONE_COUNT: number = 2
+export const BOARD_DIMENSION: number = 8;
 
 export const INITIAL__STONES = [
     {

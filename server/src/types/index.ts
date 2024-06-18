@@ -29,3 +29,11 @@ export interface IGame {
 export type IGamerDocument = IGamer & Document;
 export type IGameDocument = IGame & Document;
 export type IMoveDocument = IMove & Document;
+
+export interface BulkWriteResult {
+    insertedCount: number;
+    modifiedCount: number;
+    upsertedCount: number;
+    matchedCount: number;
+    deletedCount: number;
+};

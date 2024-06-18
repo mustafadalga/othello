@@ -76,7 +76,7 @@ export interface IMutationUpdateGameVariables {
         _id: string,
         isGameStarted?: boolean
         isGameFinished?: boolean
-        moveOrder: string | null
+        moveOrder?: string | null
         winnerGamer?: string
         exitGamer?: string
         gamers?: IGamer[]

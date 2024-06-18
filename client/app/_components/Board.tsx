@@ -1,22 +1,20 @@
 import { useCallback, useEffect, useState } from "react";
 import { useParams } from "next/navigation";
-import { MutationFunction, useMutation, useQuery, useSubscription } from "@apollo/client";
+import { useMutation, useQuery, useSubscription } from "@apollo/client";
 import { toast } from "react-toastify";
 import createBoard from "@/_utilities/createBoard";
 import createHints from "@/_utilities/createHints";
 import reverseOpponentStones from "@/_utilities/reverseOpponentStones";
 import graphQLError from "@/_utilities/graphQLError";
-import { GET_GAME_BY_ID, GET_GAMERS_STONE_COUNT, GET_MOVES_BY_GAME_ID } from "@/_graphql/queries";
+import { GET_GAME_BY_ID, GET_MOVES_BY_GAME_ID } from "@/_graphql/queries";
 import { CREATE_MOVES, UPDATE_GAME } from "@/_graphql/mutations";
-import { GAME_MOVED, GAME_RESTARTED, GAME_UPDATED, GAMERS_STONE_COUNT_UPDATED } from "@/_graphql/subscriptions";
+import { GAME_MOVED, GAME_RESTARTED, GAME_UPDATED } from "@/_graphql/subscriptions";
 import getActiveGamerData, { IActiveGamerData } from "@/_utilities/getActiveGamerData";
 import useDeepCompareMemoize from "@/_hooks/useDeepCompareMemoize";
 import useGameResultModal from "@/_store/useGameResultModal";
-import { DIMENSION } from "@/_constants";
-import { EGamer } from "@/_enums";
+import { EGamer, ELocalStorage } from "@/_enums";
 import {
     IGame,
-    IGamersStoneCount,
     IMove,
     IMutationUpdateGame,
     IMutationUpdateGameVariables,
@@ -24,10 +22,9 @@ import {
     IStones,
     SubscriptionGameMovedData,
     SubscriptionGameRestartedData,
-    SubscriptionGamersStoneCountUpdatedData,
     SubscriptionGameUpdatedData
 } from "@/_types";
-import GameResultModal from "@/_components/modal/GameResultModal";
+import GameResultModal from "./modal/GameResultModal";
 import Cell from "./Cell";
 
 
@@ -36,14 +33,15 @@ export default function Board() {
     const [ game, setGame ] = useState<IGame>()
     const { onOpen } = useGameResultModal()
     const [ board, setBoard ] = useState<IStones>(createBoard);
+    const [ isHintClicked, setIsHintClicked ] = useState<boolean>(false)
     const memoizedGame = useDeepCompareMemoize<IGame>(game as IGame);
     const activeMoveOrder = useDeepCompareMemoize<IActiveGamerData>(getActiveGamerData(game as IGame));
     const opponent = activeMoveOrder.gamer.color == EGamer.BLACK ? EGamer.WHITE : EGamer.BLACK;
     const opponentStones = board.filter(cell => cell.gamer === opponent)
     const hints = activeMoveOrder.isYourTurn ? createHints(board, opponentStones, activeMoveOrder.gamer.color) : [];
     const hasValidMove: boolean = !!hints.length;
-    const isAllStoneReversed: boolean = board.every(cell => cell.gamer);
     const winnerGamer: EGamer | null = game?.winnerGamer ? game.gamers.find(gamer => gamer.id == game.winnerGamer)?.color || null : null;
+    const gamerColor: EGamer | null = game ? game?.gamers.find(gamer => gamer.id == localStorage.getItem(ELocalStorage.USERID))?.color || null : null;
 
     useQuery<{ game: IGame }>(GET_GAME_BY_ID, {
         variables: {
@@ -73,16 +71,6 @@ export default function Board() {
         }
     });
 
-    useQuery<{ game: IGamersStoneCount }>(GET_GAMERS_STONE_COUNT, {
-        variables: {
-            gameID: id,
-        },
-        onCompleted: ({ game }) => {
-            if (game) {
-                handleWinnerGamer(game, updateGame)
-            }
-        }
-    });
 
     const [ createMove ] = useMutation(CREATE_MOVES, {
         onError: graphQLError
@@ -135,19 +123,8 @@ export default function Board() {
         onError: graphQLError
     });
 
-    useSubscription<SubscriptionGamersStoneCountUpdatedData>(GAMERS_STONE_COUNT_UPDATED, {
-        variables: {
-            gameID: id
-        },
-        onData: ({ data: { data } }) => {
-            if (data?.game) {
-                handleWinnerGamer(data.game, updateGame)
-            }
-        },
-        onError: graphQLError
-    });
-
     const handleHint = useCallback(async (move: IStone) => {
+        if (isHintClicked) return;
         if (!memoizedGame?.isGameStarted) {
             return toast.info("Game has not started yet!");
         }
@@ -172,22 +149,21 @@ export default function Board() {
             })))
         ];
 
+        setIsHintClicked(true);
         createMove({
             variables: {
                 moves
             }
         });
 
-    }, [ memoizedGame, board, activeMoveOrder ]);
+    }, [ memoizedGame, board, activeMoveOrder, isHintClicked ]);
 
 
     // handle no valid move and consecutive moves
     useEffect(() => {
-        if (!
-                (memoizedGame?.isGameStarted == true &&
-                    memoizedGame?.isGameFinished == false)
-            || !activeMoveOrder.isYourTurn
-            || isAllStoneReversed) return;
+        if (!(memoizedGame?.isGameStarted == true &&
+                memoizedGame?.isGameFinished == false)
+            || !activeMoveOrder.isYourTurn || hasValidMove) return;
         const updatedGamers = memoizedGame.gamers.map(gamer => {
             if (gamer.id == activeMoveOrder.gamer.id) {
                 return {
@@ -206,6 +182,7 @@ export default function Board() {
                     data: {
                         _id: id as string,
                         isGameFinished: true,
+                        isGameStarted: false,
                         moveOrder: null,
                         gamers: updatedGamers
                     }
@@ -215,6 +192,7 @@ export default function Board() {
                 toastId: "consecutiveNoMove"
             })
         } else if (!hasValidMove) {
+
             updateGame({
                 variables: {
                     data: {
@@ -229,18 +207,23 @@ export default function Board() {
             })
         }
 
-    }, [ memoizedGame, activeMoveOrder, hasValidMove, isAllStoneReversed ])
+    }, [ memoizedGame, activeMoveOrder, hasValidMove ])
+
+    // set to initial state
+    useEffect(() => {
+        setIsHintClicked(false);
+    }, [ activeMoveOrder ])
 
     return (
         <section
-            className="relative grid grid-cols-8 grid-rows-8 max-w-xl mx-4 sm:max-0 bg-[#038947] border border-gray-900">
-            {board.map((cell, index) => <Cell key={`${cell.row}${cell.col}$`}
+            className={`${isHintClicked ? 'pointer-events-none' : ''} relative grid grid-cols-8 grid-rows-8 max-w-xl mx-4 sm:max-0 bg-[#038947] border border-gray-900`}>
+            {board.map((cell, index) => <Cell key={`${cell.row}${cell.col}`}
                                               onClick={handleHint}
                                               hasHint={hints.includes(index)}
                                               stone={cell}
                                               activeGamer={activeMoveOrder.gamer.color}/>)}
 
-            { game?.isGameFinished && <GameResultModal winnerGamer={winnerGamer}/> }
+            {game?.isGameFinished && <GameResultModal winnerGamer={winnerGamer} gamerColor={gamerColor as EGamer}/>}
         </section>
     )
 }
@@ -254,33 +237,4 @@ function nextMoveOrderID(game: IGame): string {
         }
     }
     return "";
-}
-
-function handleWinnerGamer(gamersStoneCount: IGamersStoneCount, updateGame: MutationFunction<IMutationUpdateGame, IMutationUpdateGameVariables>) {
-    const MAX_STONE_COUNT: number = DIMENSION * DIMENSION;
-    const isAllStoneReversed: boolean = gamersStoneCount.count.BLACK + gamersStoneCount.count.WHITE == MAX_STONE_COUNT;
-
-    if (!isAllStoneReversed) return;
-
-    const whiteGamerID: string = gamersStoneCount.game.gamers.find(gamer => gamer.color == EGamer.WHITE)?.id!;
-    const blackGamerID: string = gamersStoneCount.game.gamers.find(gamer => gamer.color == EGamer.BLACK)?.id!;
-    let winnerID: string | null = null;
-
-    if (gamersStoneCount.count.BLACK > gamersStoneCount.count.WHITE) {
-        winnerID = blackGamerID;
-    } else if (gamersStoneCount.count.WHITE > gamersStoneCount.count.BLACK) {
-        winnerID = whiteGamerID;
-    }
-
-    updateGame({
-        variables: {
-            data: {
-                _id: gamersStoneCount.game._id,
-                isGameStarted: false,
-                isGameFinished: true,
-                moveOrder: null,
-                winnerGamer: winnerID as string,
-            }
-        }
-    })
 }

@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { IStone } from "@/_types";
 import { EGamer } from "@/_enums";
 import Stone from "./Stone";
@@ -19,8 +19,13 @@ export default function Cell({ stone, hasHint, activeGamer, onClick }: Props) {
 
         setIsHintClicked(true)
         onClick(stone);
-    }, [ hasHint, stone, onClick ])
+    }, [ hasHint, stone, onClick ]);
 
+    useEffect(() => {
+        if (!hasHint) {
+             setIsHintClicked(false);
+        }
+    }, [ hasHint ])
 
     return (
         <div onClick={handleClick}
