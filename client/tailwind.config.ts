@@ -14,7 +14,7 @@ const classes = plugin(function ({ addUtilities }) {
         },
         ".bg-white-gradient": {
             "background-image": "radial-gradient(circle at 30% 30%,rgb(255,255,255),rgb(230,230,230) 70%)"
-        }
+        },
     })
 })
 
@@ -26,5 +26,22 @@ const config: Config = {
         "./app/**/*.{js,ts,jsx,tsx,mdx}",
     ],
     plugins: [ classes ],
+    theme: {
+        extend: {
+            animation: {
+                rotation: 'rotation 1s linear infinite',
+            },
+            keyframes: {
+                rotation: {
+                    '0%': {
+                        transform: 'rotate(0deg)',
+                    },
+                    '100%': {
+                        transform: 'rotate(360deg)',
+                    },
+                },
+            }
+        }
+    }
 };
 export default config;

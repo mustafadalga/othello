@@ -22,7 +22,6 @@ export interface IGame {
     isGameStarted: boolean
     moveOrder: string
     winnerGamer: string
-    playAgainstComputer: boolean,
     exitGamer: string
 }
 
