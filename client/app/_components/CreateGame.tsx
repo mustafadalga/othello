@@ -1,6 +1,7 @@
 import { CREATE_GAME } from "@/_graphql/mutations";
 import { useMutation } from "@apollo/client";
 import Link from "next/link";
+import useLoader from "@/_store/useLoader";
 import ClipBoardURL from "@/_components/ClipBoardURL";
 
 interface AddTodoResponse {
@@ -18,12 +19,16 @@ export default function CreateGame() {
     const [ createGame, { data, loading, error } ] = useMutation<AddTodoResponse, AddTodoVariables>(CREATE_GAME);
     const roomURL: string = `${process.env.NEXT_PUBLIC_SITE_URL}/room/${data?.game?._id}`;
     const playAgainstComputer: boolean = data?.game?.playAgainstComputer || false;
-
+    const { onOpen, onClose } = useLoader()
 
     const handleCreateGame = (playAgainstComputer: boolean) => {
+        onOpen();
         createGame({
             variables: {
                 playAgainstComputer
+            },
+            onCompleted: () => {
+                onClose();
             }
         })
     }
@@ -56,7 +61,6 @@ export default function CreateGame() {
             </div>
 
 
-
             {
                 data?.game &&
 
@@ -71,7 +75,9 @@ export default function CreateGame() {
 
                         ) : (
                             <>
-                                <p className="text-gray-600">Game room created! Share this link with your friend to start playing together</p>
+                                <p className="text-gray-600">
+                                    Game room created! Share this link with your friend to start playing together
+                                </p>
                                 <div className="flex items-center truncate">
                                     <Link href={roomURL} className="text-blue-500 truncate">{roomURL}</Link>
                                     <ClipBoardURL roomURL={roomURL}/>

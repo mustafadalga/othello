@@ -223,7 +223,7 @@ export default function Board() {
                                               stone={cell}
                                               activeGamer={activeMoveOrder.gamer.color}/>)}
 
-            {game?.isGameFinished && <GameResultModal winnerGamer={winnerGamer} gamerColor={gamerColor as EGamer}/>}
+            {game?.isGameFinished && !game.exitGamer && <GameResultModal winnerGamer={winnerGamer} gamerColor={gamerColor as EGamer}/>}
         </section>
     )
 }

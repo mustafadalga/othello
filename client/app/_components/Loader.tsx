@@ -1,6 +1,7 @@
 "use client"
 import useLoader from "@/_store/useLoader";
 
+// resource: https://cssloaders.github.io
 export default function Loader() {
     const { isOpen } = useLoader();
 

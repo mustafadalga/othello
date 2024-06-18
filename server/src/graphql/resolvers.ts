@@ -262,7 +262,7 @@ export default {
                     if (data.isGameStarted == undefined) return;
 
                     game.isGameFinished = true;
-                    handleWinnerGamer(game, data._id);
+                    await handleWinnerGamer(game, data._id);
                     const allMoves = await Move.find({ gameID: data._id });
                     // Send players' stone counts to subscribers for winner calculation upon game completion
                     pubsub.publish(`${ESubscriptionMessages.GAMERS_STONE_COUNT_UPDATED}_${data._id}`, {

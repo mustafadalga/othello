@@ -9,6 +9,7 @@ import { GET_GAME_BY_ID } from "@/_graphql/queries";
 import graphQLError from "@/_utilities/graphQLError";
 import { GAME_UPDATED, GAMER_CONNECTION } from "@/_graphql/subscriptions";
 import { useGame } from "@/_providers/GameProvider";
+import useLoader from "@/_store/useLoader";
 import { MAX_GAMER_COUNT } from "@/_constants";
 import { EGamerStatus, ELocalStorage } from "@/_enums";
 import { IGame, IGamerConnection, SubscriptionGamerConnection, SubscriptionGameUpdatedData } from "@/_types";
@@ -28,6 +29,7 @@ export default function Page() {
     const router = useRouter()
     const { setGameID } = useGame();
     const [ game, setGame ] = useState<IGame>();
+    const { onOpen, onClose } = useLoader();
     const userID: string = localStorage.getItem(ELocalStorage.USERID)!
 
     const [ addPlayer ] = useMutation(ADD_PLAYER, {
@@ -40,6 +42,7 @@ export default function Page() {
         onCompleted: ({ game }) => {
             if (!game) return;
 
+            onClose();
             setGame(game);
             const isAuthenticatedGamer: boolean = game.gamers.some(gamer => gamer.id == userID);
 
@@ -63,7 +66,10 @@ export default function Page() {
                 }
             })
         },
-        onError: graphQLError
+        onError: (error) => {
+            onClose();
+            graphQLError(error)
+        },
     });
 
     const showGameFinishedMessage = useCallback(() => {
@@ -114,7 +120,7 @@ export default function Page() {
 
             const color = (game as IGame).gamers.find(gamerItem => gamerItem.id == gamer.userID)?.color;
             if (!color) return;
-            
+
             const message: string = `${color} gamer ${gamer.status.toLowerCase()}!`
 
             if (gamer.status == EGamerStatus.CONNECTED) {
@@ -132,6 +138,10 @@ export default function Page() {
 
     useEffect(() => {
         setGameID(id as string);
+        onOpen();
+        return () => {
+            onClose();
+        }
     }, [])
 
     return <GameScreen/>;
