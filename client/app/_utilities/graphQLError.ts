@@ -13,6 +13,11 @@ export default function graphQLError(error: ApolloError) {
 
 
 function extractErrorMessage(error: ApolloError | undefined): string {
+    const networkErrorMessage = error?.networkError;
+
+    if (error?.networkError?.message == networkErrorMessage) {
+        return "Network error: Connection refused. Please check your server."
+    }
     if (error) {
         const queryErrorType = error.graphQLErrors?.[0]?.extensions?.code as keyof typeof ErrorCode;
         const queryErrorMessage = error.graphQLErrors?.[0]?.message as string;
@@ -21,6 +26,5 @@ function extractErrorMessage(error: ApolloError | undefined): string {
             return queryErrorMessage;
         }
     }
-
     return "";
 }
