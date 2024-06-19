@@ -9,7 +9,8 @@
   "scripts": {
     "dev": "nodemon --exec ts-node src/index.ts",
     "kill": "kill -9 $(lsof -t -i tcp:4000-4002)",
-    "start": " src/index.ts"
+    "build": "tsc",
+    "start": "node dist/index.js"
   },
   "keywords": [],
   "author": "",
