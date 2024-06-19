@@ -195,9 +195,13 @@ export default {
 
 
                 // sent initial moves data to subscribers
-                const allMoves = await Move.find({ gameID: data.gameID });
+                const moves = await Move.find({ gameID: data.gameID });
 
-                pubsub.publish(`${ESubscriptionMessages.GAME_MOVED}_${data.gameID}`, { gameMoved: allMoves });
+                pubsub.publish(`${ESubscriptionMessages.GAME_MOVED}_${data.gameID}`, {
+                    gameMoved: {
+                        moves
+                    }
+                });
 
                 if (game.gamers.length == MAX_GAMER_COUNT) {
                     // start game with black gamer
@@ -305,7 +309,7 @@ export default {
                 const game: IGameDocument = await isAllStoneReversed(gameID) ? await handleGameFinish() : await updateGameMoveOrder(gameID, gamer)
                 const allMoves = await Move.find({ gameID });
 
-                pubsub.publish(`${ESubscriptionMessages.GAME_MOVED}_${gameID}`, { gameMoved: moves });
+                pubsub.publish(`${ESubscriptionMessages.GAME_MOVED}_${gameID}`, { gameMoved: { moves: allMoves } });
                 pubsub.publish(`${ESubscriptionMessages.GAME_UPDATED}_${gameID}`, { gameUpdated: game });
                 pubsub.publish(`${ESubscriptionMessages.GAMERS_STONE_COUNT_UPDATED}_${gameID}`, {
                     gamersStoneCountUpdated: {
@@ -351,16 +355,20 @@ export default {
                 if (game.gamers.length != MAX_GAMER_COUNT) return game;
 
                 await restartGame(game);
-                const allMoves = await restartMoves(_id);
-                pubsub.publish(`${ESubscriptionMessages.GAME_MOVED}_${_id}`, { gameMoved: allMoves });
+                const moves = await restartMoves(_id);
+                pubsub.publish(`${ESubscriptionMessages.GAME_MOVED}_${_id}`, {
+                    gameMoved: {
+                        moves,
+                        isGameRestarted: true,
+                    }
+                });
                 pubsub.publish(`${ESubscriptionMessages.GAMERS_STONE_COUNT_UPDATED}_${_id}`, {
                     gamersStoneCountUpdated: {
                         game,
-                        count: getGamersStoneCount(allMoves)
+                        count: getGamersStoneCount(moves)
                     }
                 });
                 pubsub.publish(`${ESubscriptionMessages.GAME_UPDATED}_${_id}`, { gameUpdated: game });
-                pubsub.publish(`${ESubscriptionMessages.GAME_RESTARTED}_${_id}`, { gameRestarted: game });
 
                 return game;
             } catch (error) {
@@ -383,9 +391,6 @@ export default {
         },
         gameStarted: {
             subscribe: (parent, { gameID }) => pubsub.asyncIterator([ `${ESubscriptionMessages.GAME_STARTED}_${gameID}` ])
-        },
-        gameRestarted: {
-            subscribe: (parent, { gameID }) => pubsub.asyncIterator([ `${ESubscriptionMessages.GAME_RESTARTED}_${gameID}` ])
         },
         gameUpdated: {
             subscribe: (parent, { gameID }) => pubsub.asyncIterator([ `${ESubscriptionMessages.GAME_UPDATED}_${gameID}` ])

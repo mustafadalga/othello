@@ -8,7 +8,7 @@ import reverseOpponentStones from "@/_utilities/reverseOpponentStones";
 import graphQLError from "@/_utilities/graphQLError";
 import { GET_GAME_BY_ID, GET_MOVES_BY_GAME_ID } from "@/_graphql/queries";
 import { CREATE_MOVES, UPDATE_GAME } from "@/_graphql/mutations";
-import { GAME_MOVED, GAME_RESTARTED, GAME_UPDATED } from "@/_graphql/subscriptions";
+import { GAME_MOVED, GAME_UPDATED } from "@/_graphql/subscriptions";
 import getActiveGamerData, { IActiveGamerData } from "@/_utilities/getActiveGamerData";
 import useDeepCompareMemoize from "@/_hooks/useDeepCompareMemoize";
 import useGameResultModal from "@/_store/useGameResultModal";
@@ -21,7 +21,6 @@ import {
     IStone,
     IStones,
     SubscriptionGameMovedData,
-    SubscriptionGameRestartedData,
     SubscriptionGameUpdatedData
 } from "@/_types";
 import GameResultModal from "./modal/GameResultModal";
@@ -95,32 +94,27 @@ export default function Board() {
         onError: graphQLError
     });
 
-    useSubscription<SubscriptionGameMovedData>(GAME_MOVED, {
-        variables: {
-            gameID: id
-        },
-        onData: ({ data: { data } }) => {
-            if (data?.moves) {
-                const moves = data.moves;
-                setBoard(prevState => prevState.map(cell => {
-                    const move = moves.find(move => move.row == cell.row && move.col == cell.col);
-                    return move ? move : cell
-                }))
-            }
-        },
-        onError: graphQLError
-    });
-
-    useSubscription<SubscriptionGameRestartedData>(GAME_RESTARTED, {
+   useSubscription<SubscriptionGameMovedData>(GAME_MOVED, {
         variables: {
             gameID: id
         },
         onData: ({ data: { data } }) => {
             if (data?.game) {
-                setBoard(createBoard)
+                const game = data.game;
+                if (game.isGameRestarted) {
+                    setBoard(prevState => prevState.map(cell => {
+                        const move = game.moves.find(move => move.row == cell.row && move.col == cell.col);
+                        return move ? move : { ...cell, gamer: null, gamerID: null }
+                    }))
+                } else {
+                    setBoard(prevState => prevState.map(cell => {
+                        const move = game.moves.find(move => move.row == cell.row && move.col == cell.col);
+                        return move ? move : cell
+                    }))
+                }
             }
         },
-        onError: graphQLError
+       onError: graphQLError
     });
 
     const handleHint = useCallback(async (move: IStone) => {
@@ -197,7 +191,7 @@ export default function Board() {
                 variables: {
                     data: {
                         _id: id as string,
-                        moveOrder: nextMoveOrderID(memoizedGame as IGame),
+                         moveOrder: nextMoveOrderID(memoizedGame as IGame),
                         gamers: updatedGamers
                     }
                 }

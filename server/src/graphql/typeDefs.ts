@@ -25,9 +25,8 @@ type Mutation {
 
 type Subscription {
     gameStarted(gameID:ID!):Game!
-    gameRestarted(gameID:ID!):Game!
     gameUpdated(gameID:ID!):Game!
-    gameMoved(gameID: ID!): [Move]
+    gameMoved(gameID: ID!): GameMoved!
     gamersStoneCountUpdated(gameID:ID!):GamersStoneCount
     gamerConnection(gameID:ID!):GamerConnection!
 }
@@ -55,6 +54,11 @@ type Move {
     col:Int!
     gamer:Gamer!
     gameID:ID!
+}
+
+type GameMoved {
+    isGameRestarted:Boolean,
+    moves:[Move]!
 }
 
 type GamerConnection {

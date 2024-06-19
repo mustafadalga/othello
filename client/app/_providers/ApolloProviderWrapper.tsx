@@ -1,16 +1,17 @@
 import { ReactNode } from "react";
 import { ApolloClient, ApolloProvider, createHttpLink, from, InMemoryCache, split } from "@apollo/client";
 import { removeTypenameFromVariables } from "@apollo/client/link/remove-typename";
+import { GraphQLWsLink } from "@apollo/client/link/subscriptions";
 import { createClient } from "graphql-ws";
 import { getMainDefinition } from "@apollo/client/utilities";
-import { IMove } from "@/_types";
 import { useGame } from "@/_providers/GameProvider";
-import { GraphQLWsLink } from "@apollo/client/link/subscriptions";
+import { SubscriptionGameMovedData } from "@/_types";
 import { ELocalStorage } from "@/_enums";
 
 function createWsLink(gameID: string) {
     return new GraphQLWsLink(createClient({
         url: process.env.NEXT_PUBLIC_WS_URL as string,
+
         connectionParams: {
             userID: localStorage.getItem(ELocalStorage.USERID),
             gameID
@@ -44,8 +45,10 @@ function getClient(gameID: string) {
                 fields: {
                     gameMoved: {
                         keyArgs: [ "gameID" ],
-                        merge(existing: IMove[] = [], incoming: IMove[]) {
-                            const merged = [ ...existing ];
+                        merge(existing: SubscriptionGameMovedData, incoming: SubscriptionGameMovedData) {
+                            const existingMoves = existing?.moves || [];
+                            const incomingMoves = incoming?.moves || [];
+                            const merged = [ ...existingMoves ];
 
                             // Create a map to keep track of unique row+col combinations
                             const map = new Map();
@@ -53,7 +56,7 @@ function getClient(gameID: string) {
                                 map.set(`${move.row}:${move.col}`, move);
                             }
 
-                            for (const move of incoming) {
+                            for (const move of incomingMoves) {
                                 map.set(`${move.row}:${move.col}`, move);
                             }
 

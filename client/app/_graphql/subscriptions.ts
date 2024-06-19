@@ -2,11 +2,14 @@ import { gql } from '@apollo/client';
 
 export const GAME_MOVED = gql`
     subscription gameMoved($gameID: ID!) {
-        moves:gameMoved(gameID: $gameID) {
-            col
-            gameID
-            gamer
-            row
+        game:gameMoved(gameID: $gameID) {
+            isGameRestarted
+            moves {
+                row
+                gamer
+                gameID
+                col
+            }
         }
     }
 `;
@@ -27,14 +30,6 @@ export const GAME_UPDATED = gql`
             moveOrder,
             winnerGamer,
             exitGamer
-        }
-    }
-`;
-
-export const GAME_RESTARTED = gql`
-    subscription gameRestarted($gameID: ID!) {
-        game:gameRestarted(gameID: $gameID) {
-            _id
         }
     }
 `;

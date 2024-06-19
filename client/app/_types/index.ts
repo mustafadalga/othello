@@ -44,14 +44,13 @@ export type IGamersStoneCount = {
 }
 
 export interface SubscriptionGameMovedData {
-    moves: IMove[] | undefined
+    game: {
+        moves: IMove[],
+        isGameRestarted?: boolean
+    } | undefined
 }
 
 export interface SubscriptionGameUpdatedData {
-    game: IGame | undefined
-}
-
-export interface SubscriptionGameRestartedData {
     game: IGame | undefined
 }
 
