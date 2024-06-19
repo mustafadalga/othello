@@ -15,8 +15,14 @@ import pubsub from "@/pubsub"
 import {
     MAX_GAMER_COUNT,
     INITIAL__STONES,
+    GRAPHQL_ERROR_MESSAGES
 } from "@/constansts";
-import { EGamer, EGamerStatus, ESubscriptionMessages } from "@/enums";
+import {
+    EGamer,
+    EGamerStatus,
+    ESubscriptionMessages,
+    GRAPHQL_ERROR_CODES
+} from "@/enums";
 import type { IGameDocument, IGamer, IMove } from "@/types"
 
 interface AddPlayer {
@@ -38,88 +44,88 @@ export default {
     Query: {
         gameByID: async (parent, { _id }: { _id: string }) => {
             if (!_id) {
-                throw new GraphQLError("Game id is required", {
-                    extensions: { code: 'BAD_USER_INPUT' },
+                throw new GraphQLError(GRAPHQL_ERROR_MESSAGES.GAME_ID_REQUIRED, {
+                    extensions: { code: GRAPHQL_ERROR_CODES.BAD_USER_INPUT },
                 });
             }
             if (!isValidObjectId(_id)) {
-                throw new GraphQLError('Invalid game ID. Please provide a valid game ID.', {
-                    extensions: { code: 'GAME_NOT_FOUND' },
+                throw new GraphQLError(GRAPHQL_ERROR_MESSAGES.INVALID_GAME_ID, {
+                    extensions: { code: GRAPHQL_ERROR_CODES.GAME_NOT_FOUND },
                 });
             }
 
             try {
                 const game = await Game.findById({ _id });
                 if (!game) {
-                    throw new Error('Game not found');
+                    throw new Error(GRAPHQL_ERROR_MESSAGES.GAME_NOT_FOUND);
                 }
                 return game
             } catch (error) {
                 switch (error.message) {
-                    case 'Game not found':
-                        throw new GraphQLError('Game not found. Please provide a valid game ID.', {
-                            extensions: { code: 'GAME_NOT_FOUND' },
+                    case GRAPHQL_ERROR_MESSAGES.GAME_NOT_FOUND:
+                        throw new GraphQLError(error.message, {
+                            extensions: { code: GRAPHQL_ERROR_CODES.GAME_NOT_FOUND },
                         });
                     default:
-                        throw new GraphQLError("Failed to create the game due to invalid input. Please check your entries and try again.", {
-                            extensions: { code: 'INTERNAL_SERVER_ERROR' },
+                        throw new GraphQLError(GRAPHQL_ERROR_MESSAGES.GET_GAMES_FAILED, {
+                            extensions: { code: GRAPHQL_ERROR_CODES.INTERNAL_SERVER_ERROR },
                         });
                 }
             }
         },
         movesByGameID: async (parent: unknown, { gameID }: { gameID: string }) => {
             if (!gameID) {
-                throw new GraphQLError("Game id is required", {
-                    extensions: { code: 'BAD_USER_INPUT' },
+                throw new GraphQLError(GRAPHQL_ERROR_MESSAGES.GAME_ID_REQUIRED, {
+                    extensions: { code: GRAPHQL_ERROR_CODES.BAD_USER_INPUT },
                 });
             }
             if (!isValidObjectId(gameID)) {
-                throw new GraphQLError('Invalid game ID. Please provide a valid game ID.', {
-                    extensions: { code: 'GAME_NOT_FOUND' },
+                throw new GraphQLError(GRAPHQL_ERROR_MESSAGES.INVALID_GAME_ID, {
+                    extensions: { code: GRAPHQL_ERROR_CODES.GAME_NOT_FOUND },
                 });
             }
 
             try {
                 const moves = await Move.find({ gameID });
                 if (!moves) {
-                    throw new Error('Moves not found');
+                    throw new Error(GRAPHQL_ERROR_MESSAGES.MOVES_NOT_FOUND);
                 }
 
                 return moves
             } catch (error) {
                 switch (error.message) {
-                    case 'Moves not found':
-                        throw new GraphQLError('Moves not found. Please provide a valid game ID.', {
-                            extensions: { code: 'GAME_NOT_FOUND' },
+                    case GRAPHQL_ERROR_MESSAGES.MOVES_NOT_FOUND:
+                        throw new GraphQLError(error.response, {
+                            extensions: { code: GRAPHQL_ERROR_CODES.MOVES_NOT_FOUND },
                         });
                     default:
-                        throw new GraphQLError("Failed to create the game due to invalid input.", {
-                            extensions: { code: 'INTERNAL_SERVER_ERROR' },
+                        throw new GraphQLError(GRAPHQL_ERROR_MESSAGES.GET_MOVES_FAILED, {
+                            extensions: { code: GRAPHQL_ERROR_CODES.INTERNAL_SERVER_ERROR },
                         });
                 }
             }
         },
         gamersStoneCountByGameID: async (parent: unknown, { gameID }: { gameID: string }) => {
             if (!gameID) {
-                throw new GraphQLError("Game id is required", {
-                    extensions: { code: 'BAD_USER_INPUT' },
+                throw new GraphQLError(GRAPHQL_ERROR_MESSAGES.GAME_ID_REQUIRED, {
+                    extensions: { code: GRAPHQL_ERROR_CODES.BAD_USER_INPUT },
                 });
             }
             if (!isValidObjectId(gameID)) {
-                throw new GraphQLError('Invalid game ID. Please provide a valid game ID.', {
-                    extensions: { code: 'GAME_NOT_FOUND' },
+                throw new GraphQLError(GRAPHQL_ERROR_MESSAGES.INVALID_GAME_ID, {
+                    extensions: { code: GRAPHQL_ERROR_CODES.GAME_NOT_FOUND },
                 });
             }
 
             try {
                 const game = await Game.findById(gameID);
                 if (!game) {
-                    throw new Error('Game not found');
+                    throw new Error(GRAPHQL_ERROR_MESSAGES.GAME_NOT_FOUND);
                 }
 
                 const moves = await Move.find({ gameID });
                 if (!moves) {
-                    throw new Error('Moves not found');
+                    throw new Error(GRAPHQL_ERROR_MESSAGES.MOVES_NOT_FOUND);
                 }
 
                 return {
@@ -129,17 +135,14 @@ export default {
 
             } catch (error) {
                 switch (error.message) {
-                    case 'Game not found':
-                        throw new GraphQLError('Game not found. Please provide a valid game ID.', {
-                            extensions: { code: 'GAME_NOT_FOUND' },
-                        });
-                    case 'Moves not found':
-                        throw new GraphQLError('Moves not found. Please provide a valid game ID.', {
-                            extensions: { code: 'GAME_NOT_FOUND' },
+                    case GRAPHQL_ERROR_MESSAGES.GAME_NOT_FOUND:
+                    case GRAPHQL_ERROR_MESSAGES.MOVES_NOT_FOUND:
+                        throw new GraphQLError(error.message, {
+                            extensions: { code: GRAPHQL_ERROR_CODES.GAME_NOT_FOUND },
                         });
                     default:
-                        throw new GraphQLError("Failed to create the game due to invalid input.", {
-                            extensions: { code: 'INTERNAL_SERVER_ERROR' },
+                        throw new GraphQLError(GRAPHQL_ERROR_MESSAGES.GET_STONE_COUNTS_FAILED, {
+                            extensions: { code: GRAPHQL_ERROR_CODES.INTERNAL_SERVER_ERROR },
                         });
                 }
             }
@@ -152,32 +155,32 @@ export default {
                 Move.insertMany(INITIAL__STONES.map(stone => ({ ...stone, gameID: game._id })));
                 return game.save();
             } catch (e) {
-                throw new GraphQLError("Failed to create the game due to invalid input.", {
-                    extensions: { code: 'INTERNAL_SERVER_ERROR' },
+                throw new GraphQLError(GRAPHQL_ERROR_MESSAGES.CREATE_GAME_FAILED, {
+                    extensions: { code: GRAPHQL_ERROR_CODES.INTERNAL_SERVER_ERROR },
                 });
             }
         },
         addPlayer: async (parent: unknown, { data }: { data: AddPlayer }) => {
             if (!data.gameID || !data.gamerID) {
-                throw new GraphQLError("Game id and gamer is required", {
-                    extensions: { code: 'BAD_USER_INPUT' },
+                throw new GraphQLError(GRAPHQL_ERROR_MESSAGES.GAME_ID_AND_GAMER_ID_REQUIRED, {
+                    extensions: { code: GRAPHQL_ERROR_CODES.BAD_USER_INPUT },
                 });
             }
 
             if (!isValidObjectId(data.gameID)) {
-                throw new GraphQLError('Invalid game ID. Please provide a valid game ID.', {
-                    extensions: { code: 'GAME_NOT_FOUND' },
+                throw new GraphQLError(GRAPHQL_ERROR_MESSAGES.INVALID_GAME_ID, {
+                    extensions: { code: GRAPHQL_ERROR_CODES.GAME_NOT_FOUND },
                 });
             }
 
             try {
                 const game = await Game.findById({ _id: data.gameID });
                 if (!game) {
-                    throw new Error('Game not found');
+                    throw new Error(GRAPHQL_ERROR_MESSAGES.GAME_NOT_FOUND);
                 }
 
                 if (game.gamers.length >= MAX_GAMER_COUNT) {
-                    throw new Error('Room is full');
+                    throw new Error(GRAPHQL_ERROR_MESSAGES.ROOM_IS_FULL);
                 }
 
                 const hasPlayer = game.gamers.some(gamer => gamer.id === data.gamerID);
@@ -217,42 +220,38 @@ export default {
                 return game.save();
             } catch (error) {
                 switch (error.message) {
-                    case 'Game not found':
-                        throw new GraphQLError('Game not found. Please provide a valid game ID.', {
-                            extensions: { code: 'GAME_NOT_FOUND' },
+                    case GRAPHQL_ERROR_MESSAGES.GAME_NOT_FOUND:
+                        throw new GraphQLError(error.response, {
+                            extensions: { code: GRAPHQL_ERROR_CODES.GAME_NOT_FOUND },
                         });
-                    case 'Room is full':
-                        throw new GraphQLError('Room is full. Please provide a valid game ID.', {
-                            extensions: { code: "GAME_FULL" },
+                    case GRAPHQL_ERROR_MESSAGES.ROOM_IS_FULL:
+                        throw new GraphQLError(error.response, {
+                            extensions: { code: GRAPHQL_ERROR_CODES.ROOM_FULL},
                         });
-                    case "Player already exists":
-                        throw new GraphQLError('Player already exists!', {
-                            extensions: { code: "PLAYER_ALREADY_EXISTS" },
-                        })
                     default:
-                        throw new GraphQLError("Failed to create the game due to invalid input. Please check your entries and try again.", {
-                            extensions: { code: 'INTERNAL_SERVER_ERROR' },
+                        throw new GraphQLError(GRAPHQL_ERROR_MESSAGES.ADD_PLAYER_FAILED, {
+                            extensions: { code: GRAPHQL_ERROR_CODES.INTERNAL_SERVER_ERROR },
                         });
                 }
             }
         },
         updateGame: async (parent: unknown, { data }: { data: UpdateGame }) => {
             if (!data._id) {
-                throw new GraphQLError("Game id is required", {
-                    extensions: { code: 'BAD_USER_INPUT' },
+                throw new GraphQLError(GRAPHQL_ERROR_MESSAGES.GAME_ID_REQUIRED, {
+                    extensions: { code: GRAPHQL_ERROR_CODES.BAD_USER_INPUT },
                 });
             }
 
             if (!isValidObjectId(data._id)) {
-                throw new GraphQLError('Invalid game ID. Please provide a valid game ID.', {
-                    extensions: { code: 'GAME_NOT_FOUND' },
+                throw new GraphQLError(GRAPHQL_ERROR_MESSAGES.INVALID_GAME_ID, {
+                    extensions: { code: GRAPHQL_ERROR_CODES.GAME_NOT_FOUND },
                 });
             }
 
             try {
                 const game = await Game.findById({ _id: data._id });
                 if (!game) {
-                    throw new Error('Game not found');
+                    throw new Error(GRAPHQL_ERROR_MESSAGES.GAME_NOT_FOUND);
                 }
 
                 if (data.isGameStarted !== undefined) game.isGameStarted = data.isGameStarted;
@@ -262,7 +261,7 @@ export default {
                 if (data.gamers !== undefined) game.gamers = data.gamers;
 
 
-                await (async function handleGameFinish(){
+                await (async function handleGameFinish() {
                     if (data.isGameStarted == undefined) return;
 
                     game.isGameFinished = true;
@@ -282,13 +281,13 @@ export default {
                 return game.save();
             } catch (error) {
                 switch (error.message) {
-                    case 'Game not found':
-                        throw new GraphQLError('Game not found. Please provide a valid game ID.', {
-                            extensions: { code: 'GAME_NOT_FOUND' },
+                    case GRAPHQL_ERROR_MESSAGES.GAME_NOT_FOUND:
+                        throw new GraphQLError(error.response, {
+                            extensions: { code: GRAPHQL_ERROR_CODES.GAME_NOT_FOUND },
                         });
                     default:
-                        throw new GraphQLError("Failed to create the game due to invalid input. Please check your entries and try again.", {
-                            extensions: { code: 'INTERNAL_SERVER_ERROR' },
+                        throw new GraphQLError(GRAPHQL_ERROR_MESSAGES.UPDATE_GAME_STATE_FAILED, {
+                            extensions: { code: GRAPHQL_ERROR_CODES.INTERNAL_SERVER_ERROR },
                         });
                 }
             }
@@ -327,25 +326,25 @@ export default {
                 if (error instanceof MongoError && error.code == 11000) {
                     const move = moves[0]
                     throw new GraphQLError(`A move with the same row (${move.row}), col (${move.col}), and gameID (${move.gameID}) already exists.`, {
-                        extensions: { code: 'DUPLICATE_MOVE' },
+                        extensions: { code: GRAPHQL_ERROR_CODES.DUPLICATE_MOVE },
                     });
                 }
 
-                throw new GraphQLError("Failed to create the game due to invalid input.", {
-                    extensions: { code: 'INTERNAL_SERVER_ERROR' },
+                throw new GraphQLError(GRAPHQL_ERROR_MESSAGES.MAKE_MOVE_FAILED, {
+                    extensions: { code: GRAPHQL_ERROR_CODES.INTERNAL_SERVER_ERROR },
                 });
             }
         },
         restartGame: async (parent: unknown, { _id }: { _id: ObjectId }) => {
             if (!_id) {
-                throw new GraphQLError("Game id is required", {
-                    extensions: { code: 'BAD_USER_INPUT' },
+                throw new GraphQLError(GRAPHQL_ERROR_MESSAGES.GAME_ID_REQUIRED, {
+                    extensions: { code: GRAPHQL_ERROR_CODES.BAD_USER_INPUT },
                 });
             }
 
             if (!isValidObjectId(_id)) {
-                throw new GraphQLError('Invalid game ID. Please provide a valid game ID.', {
-                    extensions: { code: 'BAD_USER_INPUT' },
+                throw new GraphQLError(GRAPHQL_ERROR_MESSAGES.INVALID_GAME_ID, {
+                    extensions: { code: GRAPHQL_ERROR_CODES.BAD_USER_INPUT },
                 });
             }
 
@@ -353,7 +352,7 @@ export default {
 
                 const game = await Game.findById(_id);
                 if (!game) {
-                    throw new Error('Game not found');
+                    throw new Error(GRAPHQL_ERROR_MESSAGES.GAME_NOT_FOUND);
                 }
 
                 if (game.gamers.length != MAX_GAMER_COUNT) return game;
@@ -377,13 +376,13 @@ export default {
                 return game;
             } catch (error) {
                 switch (error.message) {
-                    case 'Game not found':
-                        throw new GraphQLError('Game not found. Please provide a valid game ID.', {
-                            extensions: { code: 'GAME_NOT_FOUND' },
+                    case GRAPHQL_ERROR_MESSAGES.GAME_NOT_FOUND:
+                        throw new GraphQLError(error.response, {
+                            extensions: { code: GRAPHQL_ERROR_CODES.GAME_NOT_FOUND },
                         });
                     default:
-                        throw new GraphQLError("Failed to finish the game", {
-                            extensions: { code: 'INTERNAL_SERVER_ERROR' },
+                        throw new GraphQLError(GRAPHQL_ERROR_MESSAGES.FINISH_GAME_FAILED, {
+                            extensions: { code: GRAPHQL_ERROR_CODES.INTERNAL_SERVER_ERROR },
                         });
                 }
             }
