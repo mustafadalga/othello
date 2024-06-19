@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { ToastContainer } from 'react-toastify';
 import "./globals.css";
 import RootProvider from "@/_providers/RootProvider";
@@ -7,9 +7,47 @@ import Loader from "@/_components/Loader";
 
 
 export const metadata: Metadata = {
-    title: "Othello",
-    description: "Othello",
-};
+        title: "Othello Game - Play Classic Reversi Online",
+        description: "Play Othello online, the classic board game also known as Reversi. Challenge your friends or play against the computer in this real-time multiplayer game.",
+        keywords: [ "Othello", "Reversi", "online board game", "strategy game", "multiplayer game" ],
+        authors: [ { name: "Mustafa Dalga", url: "https://github.com/mustafadalga/othello" } ],
+        openGraph: {
+            type: "website",
+            url: "https://github.com/mustafadalga/othello",
+            title: "Othello Game - Play Classic Reversi Online",
+            description: "Play Othello online, the classic board game also known as Reversi. Challenge your friends or play against the computer in this real-time multiplayer game.",
+            images: [
+                {
+                    url: "https://github.com/mustafadalga/othello",
+                    width: 800,
+                    height: 600,
+                    alt: "Othello game board",
+                }
+            ]
+        },
+        twitter: {
+            card: "summary_large_image",
+            title: "Othello Game - Play Classic Reversi Online",
+            description: "Play Othello online, the classic board game also known as Reversi. Challenge your friends or play against the computer in this real-time multiplayer game.",
+            images: [
+                {
+                    url: "https://github.com/mustafadalga/othello",
+                    alt: "Othello game board",
+                }
+            ]
+        },
+        robots: "index, follow",
+        alternates: {
+            canonical: "https://github.com/mustafadalga/othello",
+        }
+    }
+;
+
+export const viewport: Viewport = {
+    themeColor: '#038947',
+    width: "device-width",
+    initialScale: 1
+}
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode; }>) {
     return (
