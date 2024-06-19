@@ -9,7 +9,7 @@
   "scripts": {
     "dev": "nodemon --exec ts-node src/index.ts",
     "kill": "kill -9 $(lsof -t -i tcp:4000-4002)",
-    "build": "tsc",
+    "build": "npm i && tsc",
     "start": "node dist/index.js"
   },
   "keywords": [],
@@ -32,5 +32,8 @@
     "module-alias": "^2.2.3",
     "mongoose": "^8.4.0",
     "ws": "^8.17.0"
+  },
+  "_moduleAliases": {
+    "@": "dist"
   }
 }
