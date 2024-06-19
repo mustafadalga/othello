@@ -35,5 +35,8 @@
   },
   "_moduleAliases": {
     "@": "dist"
+  },
+  "engines": {
+    "node": "19.0.0"
   }
 }
