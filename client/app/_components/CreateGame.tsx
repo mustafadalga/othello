@@ -46,7 +46,7 @@ export default function CreateGame() {
                 preference.
             </p>
 
-            <div className="flex gap-3 mb-4">
+            <div className="flex flex-col sm:flex-row gap-3 mb-4">
                 <button type="button"
                         onClick={() => handleCreateGame(false)}
                         className="bg-indigo-600 text-white hover:bg-indigo-700 rounded-lg px-4 py-2 font-normal text-xs lg:text-sm">
