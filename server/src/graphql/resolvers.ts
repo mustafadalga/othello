@@ -310,13 +310,17 @@ export default {
                 const allMoves = await Move.find({ gameID });
 
                 pubsub.publish(`${ESubscriptionMessages.GAME_MOVED}_${gameID}`, { gameMoved: { moves: allMoves } });
-                pubsub.publish(`${ESubscriptionMessages.GAME_UPDATED}_${gameID}`, { gameUpdated: game });
                 pubsub.publish(`${ESubscriptionMessages.GAMERS_STONE_COUNT_UPDATED}_${gameID}`, {
                     gamersStoneCountUpdated: {
                         game,
                         count: getGamersStoneCount(allMoves)
                     }
                 });
+
+                //  a small delay to ensure `moves` is processed first
+                setTimeout(() => {
+                    pubsub.publish(`${ESubscriptionMessages.GAME_UPDATED}_${gameID}`, { gameUpdated: game });
+                }, 50)
 
                 return moves;
             } catch (error) {
