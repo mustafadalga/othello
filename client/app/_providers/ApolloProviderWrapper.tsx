@@ -5,7 +5,7 @@ import { GraphQLWsLink } from "@apollo/client/link/subscriptions";
 import { createClient } from "graphql-ws";
 import { getMainDefinition } from "@apollo/client/utilities";
 import { useGame } from "@/_providers/GameProvider";
-import { SubscriptionGameMovedData } from "@/_types";
+import { IMove } from "@/_types";
 import { ELocalStorage } from "@/_enums";
 
 function createWsLink(gameID: string) {
@@ -45,7 +45,7 @@ function getClient(gameID: string) {
                 fields: {
                     gameMoved: {
                         keyArgs: [ "gameID" ],
-                        merge(existing: SubscriptionGameMovedData, incoming: SubscriptionGameMovedData) {
+                        merge(existing: { moves: IMove[] }, incoming: { moves: IMove[] }) {
                             const existingMoves = existing?.moves || [];
                             const incomingMoves = incoming?.moves || [];
                             const merged = [ ...existingMoves ];
