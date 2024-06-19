@@ -10,24 +10,24 @@ enum GamerStatus {
 }
 
 type Query {
-    gameByID(_id:ID!): Game
-    movesByGameID(gameID:ID!): [Move]
-    gamersStoneCountByGameID(gameID:ID!):GamersStoneCount
+    gameByID(_id:ID!): Game!
+    movesByGameID(gameID:ID!): [Move]!
+    gamersStoneCountByGameID(gameID:ID!):GamersStoneCount!
 }
 
 type Mutation {
-    createGame:Game
-    addPlayer(data:AddPlayer!):Game
-    updateGame(data:UpdateGameInput!):Game
-    createMoves(moves:[UserMove]!):[Move]
-    restartGame(_id:ID!):Game
+    createGame:Game!
+    addPlayer(data:AddPlayer!):Game!
+    updateGame(data:UpdateGameInput!):Game!
+    createMoves(moves:[UserMove]!):[Move]!
+    restartGame(_id:ID!):Game!
 }
 
 type Subscription {
     gameStarted(gameID:ID!):Game!
     gameUpdated(gameID:ID!):Game!
     gameMoved(gameID: ID!): GameMoved!
-    gamersStoneCountUpdated(gameID:ID!):GamersStoneCount
+    gamersStoneCountUpdated(gameID:ID!):GamersStoneCount!
     gamerConnection(gameID:ID!):GamerConnection!
 }
 
