@@ -1,14 +1,14 @@
 import { useState, useCallback, useEffect } from "react";
-import { IStone } from "@/_types";
+import { IMove } from "@/_types";
 import { EGamer } from "@/_enums";
 import Stone from "./Stone";
 import Hint from "./Hint";
 
 interface Props {
-    stone: IStone,
+    stone: IMove,
     hasHint: boolean,
     activeGamer: EGamer,
-    onClick: (stone: IStone) => void
+    onClick: (stone: IMove) => void
 }
 
 export default function Cell({ stone, hasHint, activeGamer, onClick }: Props) {

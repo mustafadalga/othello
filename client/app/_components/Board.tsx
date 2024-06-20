@@ -18,8 +18,6 @@ import {
     IMove,
     IMutationUpdateGame,
     IMutationUpdateGameVariables,
-    IStone,
-    IStones,
     SubscriptionGameMovedData,
     SubscriptionGameUpdatedData
 } from "@/_types";
@@ -31,7 +29,7 @@ export default function Board() {
     const { id } = useParams()
     const [ game, setGame ] = useState<IGame>()
     const { onOpen } = useGameResultModal()
-    const [ board, setBoard ] = useState<IStones>(createBoard);
+    const [ board, setBoard ] = useState<IMove[]>(createBoard);
     const [ isHintClicked, setIsHintClicked ] = useState<boolean>(false)
     const memoizedGame = useDeepCompareMemoize<IGame>(game as IGame);
     const activeMoveOrder = useDeepCompareMemoize<IActiveGamerData>(getActiveGamerData(game as IGame));
@@ -117,7 +115,7 @@ export default function Board() {
        onError: graphQLError
     });
 
-    const handleHint = useCallback(async (move: IStone) => {
+    const handleHint = useCallback(async (move: IMove) => {
         if (isHintClicked) return;
         if (!memoizedGame?.isGameStarted) {
             return toast.info("Game has not started yet!");
@@ -129,7 +127,7 @@ export default function Board() {
             return toast.warn("It's not your turn!");
         }
 
-        const reversedStone: IStone[] = reverseOpponentStones(board, move, activeMoveOrder.gamer.color);
+        const reversedStone: IMove[] = reverseOpponentStones(board, move, activeMoveOrder.gamer.color);
         const moves = [
             {
                 ...move,

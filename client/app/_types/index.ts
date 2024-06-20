@@ -1,13 +1,5 @@
 import { EGamer, EGamerStatus } from "@/_enums";
 
-export type IStone = {
-    row: number,
-    col: number,
-    gamer: EGamer | null
-}
-
-export type IStones = IStone[]
-
 export interface IGamer {
     id: string
     color: EGamer
@@ -28,8 +20,8 @@ export interface IGame {
 export interface IMove {
     row: number
     col: number
-    gamer: EGamer,
-    gameID: string
+    gamer: EGamer | null,
+    gameID: string | null
 }
 
 
