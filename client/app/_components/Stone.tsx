@@ -12,7 +12,7 @@ export default function Stone({ gamer, isActive }: {
     isActive?: boolean
 }) {
     return (
-        <div className="bg-transparent w-4 h-4 [@media(min-width:360px)]:w-5 [@media(min-width:360px)]:h-5 [@media(min-width:480px)]:w-6 [@media(min-width:480px)]:h-6 lg:!w-8 lg:!h-8 xl:!w-10 xl:!h-10">
+        <div className="bg-transparent w-4 h-4 min-[360px]:w-5 min-[360px]:h-5 min-[480px]:w-6 min-[480px]:h-6 lg:!w-8 lg:!h-8 xl:!w-10 xl:!h-10">
             <AnimatePresence mode="wait">
                 {gamer == EGamer.BLACK && (
                     <motion.div

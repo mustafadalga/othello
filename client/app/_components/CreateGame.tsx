@@ -2,6 +2,7 @@ import { CREATE_GAME } from "@/_graphql/mutations";
 import { useMutation } from "@apollo/client";
 import Link from "next/link";
 import useLoader from "@/_store/useLoader";
+import graphQLError from "@/_utilities/graphQLError";
 import ClipBoardURL from "@/_components/ClipBoardURL";
 
 interface AddTodoResponse {
@@ -27,8 +28,10 @@ export default function CreateGame() {
             variables: {
                 playAgainstComputer
             },
-            onCompleted: () => {
+            onCompleted: onClose,
+            onError: (error) => {
                 onClose();
+                graphQLError(error)
             }
         })
     }

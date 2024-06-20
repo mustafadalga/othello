@@ -3,7 +3,7 @@ import { toast } from "react-toastify";
 import { ErrorCode } from "@/_enums";
 
 export default function graphQLError(error: ApolloError) {
-    const errorMessage: string = extractErrorMessage(error)
+    const errorMessage: string = extractErrorMessage(error) || "An unexpected error occurred. Please try again!";
     if (errorMessage) {
         toast.error(errorMessage, {
             toastId: errorMessage
