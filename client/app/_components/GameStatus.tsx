@@ -25,8 +25,8 @@ export default function GameStatus() {
         [EGamer.WHITE]: 0,
         [EGamer.BLACK]: 0
     });
-    const animatedBlackGamerCount: string = useAnimatedNumber(gamerCount.BLACK,300);
-    const animatedWhiteGamerCount: string = useAnimatedNumber(gamerCount.WHITE,300);
+    const animatedBlackGamerCount: string = useAnimatedNumber(gamerCount.BLACK, 300);
+    const animatedWhiteGamerCount: string = useAnimatedNumber(gamerCount.WHITE, 300);
 
     useQuery<{ game: IGame }>(GET_GAME_BY_ID, {
         variables: {
@@ -84,7 +84,12 @@ export default function GameStatus() {
                     </div>
                     <span className="text-xs lg:text-sm"> {animatedBlackGamerCount} </span>
                 </div>
-                <div className="flex items-center gap-3 ">
+                {activeMoveOrder?.gamer.color && (
+                    <h6 className="font-semibold text-sm lg:text-base">
+                        {activeMoveOrder.isYourTurn ? "Your" : capitalize(activeMoveOrder.gamer.color)} turn
+                    </h6>
+                )}
+                <div className="flex items-center gap-3">
                     <div
                         className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12">
                         <Stone gamer={EGamer.WHITE}
@@ -94,11 +99,6 @@ export default function GameStatus() {
                 </div>
             </div>
 
-            {activeMoveOrder?.gamer.color && (
-                <h6 className="font-semibold text-sm lg:text-base">
-                    {activeMoveOrder.isYourTurn ? "Your" : capitalize(activeMoveOrder.gamer.color)} turn
-                </h6>
-            )}
 
         </section>
     )
