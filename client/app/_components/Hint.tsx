@@ -7,19 +7,19 @@ const scaleInVariants = {
 };
 
 export default function Hint({ activeGamer, isHintClicked }: { activeGamer: EGamer, isHintClicked: boolean }) {
-    const clickedClassName: string = activeGamer == EGamer.BLACK ? "bg-black-gradient" : "bg-white-gradient";
-    const defaultClassName: string = (activeGamer == EGamer.BLACK ? "group-hover:bg-black/20 border-black" : "group-hover:bg-white/20 border-white") + " border border-solid ";
+    const clickedClassName: string = activeGamer == EGamer.BLACK ?
+        "before:stone-front after:stone-front-inner" : "before:stone-back after:stone-back-inner";
+    const defaultClassName: string = (activeGamer == EGamer.BLACK ? "before:group-hover:bg-black/20 before:border-black" : "before:group-hover:bg-white/20 before:border-white") + " before:border before:border-solid ";
     const className = `${isHintClicked ? clickedClassName : defaultClassName}`
 
     return (
         <motion.div
             key={isHintClicked.toString()}
-            className={`${className} hint w-4 h-4 min-[360px]:w-5 min-[360px]:h-5 min-[480px]:w-6 min-[480px]:h-6 lg:!w-8 lg:!h-8 xl:!w-10 xl:!h-10 rounded-full`}
+            className={`${className} absolute w-full h-full backface-hidden before:block before:absolute before:rounded-full before:inset-[10%] after:block after:absolute after:rounded-full after:inset-0 after:m-[25%]`}
             variants={scaleInVariants}
             initial="hidden"
             animate="visible"
             exit="hidden"
             transition={{ duration: 0.5 }}/>
-
     )
 }

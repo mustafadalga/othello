@@ -9,12 +9,21 @@ const classes = plugin(function ({ addUtilities }) {
         ".transform-style-3d": {
             "transform-style": "preserve-3d"
         },
-        ".bg-black-gradient": {
-            "background-image": "radial-gradient(circle at 30% 30%,rgba(105,105,105),rgba(0,0,0) 70%)"
+        ".stone-front": {
+            "background": "linear-gradient(225deg, #333, #888)"
         },
-        ".bg-white-gradient": {
-            "background-image": "radial-gradient(circle at 30% 30%,rgb(255,255,255),rgb(230,230,230) 70%)"
+        ".stone-front-inner": {
+            "background": "linear-gradient(45deg, rgba(0, 0, 0, .4), hsla(0, 0%, 100%, .15))"
         },
+        ".stone-back": {
+            "background": "linear-gradient(225deg, #fff, #e1e1e1)"
+        },
+        ".stone-back-inner": {
+            "background": "linear-gradient(45deg, #fff, rgba(0, 0, 0, .3))"
+        },
+        '.backface-hidden': {
+            'backface-visibility': 'hidden',
+        }
     })
 })
 

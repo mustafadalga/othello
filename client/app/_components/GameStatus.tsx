@@ -73,17 +73,23 @@ export default function GameStatus() {
     });
 
     return (
-        <section className="w-full max-w-xl grid place-items-center h-20 py-2.5 px-5 bg-green-600 text-white">
+        <section className="w-full max-w-xl grid place-items-center py-2.5 px-5 bg-green-600 text-white">
 
             <div className="w-full flex items-center justify-around">
                 <div className="flex items-center gap-3">
-                    <Stone gamer={EGamer.BLACK}
-                           isActive={activeMoveOrder.gamer.color == EGamer.BLACK}/>
+                    <div
+                        className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12">
+                        <Stone gamer={EGamer.BLACK}
+                               isActive={activeMoveOrder.gamer.color == EGamer.BLACK}/>
+                    </div>
                     <span className="text-xs lg:text-sm"> {animatedBlackGamerCount} </span>
                 </div>
-                <div className="flex items-center gap-3">
-                    <Stone gamer={EGamer.WHITE}
-                           isActive={activeMoveOrder.gamer.color == EGamer.WHITE}/>
+                <div className="flex items-center gap-3 ">
+                    <div
+                        className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12">
+                        <Stone gamer={EGamer.WHITE}
+                               isActive={activeMoveOrder.gamer.color == EGamer.WHITE}/>
+                    </div>
                     <span className="text-xs lg:text-sm"> {animatedWhiteGamerCount} </span>
                 </div>
             </div>

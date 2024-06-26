@@ -92,7 +92,7 @@ export default function Board() {
         onError: graphQLError
     });
 
-   useSubscription<SubscriptionGameMovedData>(GAME_MOVED, {
+    useSubscription<SubscriptionGameMovedData>(GAME_MOVED, {
         variables: {
             gameID: id
         },
@@ -112,7 +112,7 @@ export default function Board() {
                 }
             }
         },
-       onError: graphQLError
+        onError: graphQLError
     });
 
     const handleHint = useCallback(async (move: IMove) => {
@@ -189,7 +189,7 @@ export default function Board() {
                 variables: {
                     data: {
                         _id: id as string,
-                         moveOrder: nextMoveOrderID(memoizedGame as IGame),
+                        moveOrder: nextMoveOrderID(memoizedGame as IGame),
                         gamers: updatedGamers
                     }
                 }
@@ -208,14 +208,15 @@ export default function Board() {
 
     return (
         <section
-            className={`${isHintClicked ? 'pointer-events-none' : ''} relative grid grid-cols-8 grid-rows-8 max-w-xl mx-4 sm:max-0 bg-[#038947] border border-gray-900`}>
+            className={`${isHintClicked ? 'pointer-events-none' : ''} grid grid-cols-8 grid-rows-8 gap-0.5 sm:gap-1 bg-white`}>
             {board.map((cell, index) => <Cell key={`${cell.row}${cell.col}`}
                                               onClick={handleHint}
                                               hasHint={hints.includes(index)}
                                               stone={cell}
                                               activeGamer={activeMoveOrder.gamer.color}/>)}
 
-            {game?.isGameFinished && !game.exitGamer && <GameResultModal winnerGamer={winnerGamer} gamerColor={gamerColor as EGamer}/>}
+            {game?.isGameFinished && !game.exitGamer &&
+                <GameResultModal winnerGamer={winnerGamer} gamerColor={gamerColor as EGamer}/>}
         </section>
     )
 }

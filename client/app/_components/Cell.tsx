@@ -29,7 +29,7 @@ export default function Cell({ stone, hasHint, activeGamer, onClick }: Props) {
 
     return (
         <div onClick={handleClick}
-             className="grid place-items-center border border-gray-900 p-1.5 min-[400px]:p-2 min-[480px]:p-2.5 min-[540px]:p-3 group">
+             className="relative bg-gradient-to-r from-[#038947] via-[#03A454] to-[#04D46C] grid place-items-center rounded w-6 h-6 min-[320px]:w-8 min-[320px]:h-8 min-[400px]:w-10 min-[400px]:h-10 min-[480px]:w-12 min-[480px]:h-12 min-[600px]:w-16 min-[600px]:h-16 min-[720px]:w-[72px] min-[720px]:h-[72px] group">
 
             {stone.gamer && <Stone gamer={stone.gamer}/>}
 
