@@ -102,7 +102,7 @@ export default function Board() {
                 if (game.isGameRestarted) {
                     setBoard(prevState => prevState.map(cell => {
                         const move = game.moves.find(move => move.row == cell.row && move.col == cell.col);
-                        return move ? move : { ...cell, gamer: null, gamerID: null }
+                        return move ? move : { ...cell, gamer: null, gameID: null }
                     }))
                 } else {
                     setBoard(prevState => prevState.map(cell => {
