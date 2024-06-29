@@ -1,3 +1,13 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+
+/* Safari workaround */
+@layer utilities {
+    @supports (hanging-punctuation: first) and (font: -apple-system-body) and (-webkit-appearance: none) {
+        .safari-hint-inset {
+            inset: 9%;
+        }
+    }
+}
