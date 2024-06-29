@@ -18,7 +18,7 @@ export const metadata: Metadata = {
             description: "Play Othello online, the classic board game also known as Reversi. Challenge your friends or play against the computer in this real-time multiplayer game.",
             images: [
                 {
-                    url: "https://raw.githubusercontent.com/mustafadalga/mangala/main/public/game-board-1.png",
+                    url: "https://github.com/mustafadalga/othello/blob/main/screenshots/screenshot-1.png",
                     width: 800,
                     height: 600,
                     alt: "Othello game board",
@@ -31,7 +31,7 @@ export const metadata: Metadata = {
             description: "Play Othello online, the classic board game also known as Reversi. Challenge your friends or play against the computer in this real-time multiplayer game.",
             images: [
                 {
-                    url: "https://raw.githubusercontent.com/mustafadalga/mangala/main/public/game-board-1.png",
+                    url: "https://github.com/mustafadalga/othello/blob/main/screenshots/screenshot-1.png",
                     alt: "Othello game board",
                 }
             ]
