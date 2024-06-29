@@ -73,7 +73,7 @@ export default function GameStatus() {
     });
 
     return (
-        <section className="w-full max-w-xl grid place-items-center py-2.5 px-5 bg-green-600 text-white">
+        <section className="w-full max-w-xl grid place-items-center py-2.5 px-5 bg-gradient-to-b from-[#038947] via-[#03A454] to-[#04D46C] text-white">
 
             <div className="w-full flex items-center justify-around">
                 <div className="flex items-center gap-3">
