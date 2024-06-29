@@ -208,7 +208,7 @@ export default function Board() {
 
     return (
         <section
-            className={`${isHintClicked ? 'pointer-events-none' : ''} grid grid-cols-8 grid-rows-8 gap-0.5 sm:gap-1 bg-white`}>
+            className={`${isHintClicked ? 'pointer-events-none' : ''} relative grid grid-cols-8 grid-rows-8 gap-0.5 sm:gap-1 bg-white`}>
             {board.map((cell, index) => <Cell key={`${cell.row}${cell.col}`}
                                               onClick={handleHint}
                                               hasHint={hints.includes(index)}
