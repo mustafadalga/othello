@@ -5,7 +5,6 @@ import RootProvider from "@/_providers/RootProvider";
 import 'react-toastify/dist/ReactToastify.css';
 import Loader from "@/_components/Loader";
 
-
 export const metadata: Metadata = {
         title: "Othello Game - Play Classic Reversi Online",
         description: "Play Othello online, the classic board game also known as Reversi. Challenge your friends or play against the computer in this real-time multiplayer game.",
@@ -41,7 +40,6 @@ export const metadata: Metadata = {
             canonical: "https://github.com/mustafadalga/othello",
         }
     }
-;
 
 export const viewport: Viewport = {
     themeColor: '#038947',
