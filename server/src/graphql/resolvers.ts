@@ -213,7 +213,7 @@ export default {
                     if (gamer?.id) {
                         game.moveOrder = gamer.id;
                     }
-
+                    console.log(`Game started. Move order: ${game.moveOrder}`);
                     pubsub.publish(`${ESubscriptionMessages.GAME_UPDATED}_${data.gameID}`, { gameUpdated: game });
                 }
 
