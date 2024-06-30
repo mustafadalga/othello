@@ -3,14 +3,12 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
-  "_moduleAliases": {
-    "@": "src"
-  },
   "scripts": {
-    "dev": "nodemon --exec ts-node src/index.ts",
+    "dev": "NODE_ENV=development npm run setupAliases && nodemon --exec ts-node src/index.ts",
     "kill": "kill -9 $(lsof -t -i tcp:4000-4002)",
     "build": "npm i && tsc",
-    "start": "node dist/index.js"
+    "start": "NODE_ENV=production npm run setupAliases && node dist/index.js",
+    "setupAliases": "node setupAliases.js"
   },
   "keywords": [],
   "author": "",
@@ -33,10 +31,10 @@
     "mongoose": "^8.4.0",
     "ws": "^8.17.0"
   },
-  "_moduleAliases": {
-    "@": "dist"
-  },
   "engines": {
     "node": "18.x"
+  },
+  "_moduleAliases": {
+    "@": "dist"
   }
 }
