@@ -1,3 +1,4 @@
+"use client";
 import { CREATE_GAME } from "@/_graphql/mutations";
 import { useMutation } from "@apollo/client";
 import Link from "next/link";
