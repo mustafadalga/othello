@@ -37,18 +37,16 @@ export default function HowToPlay() {
 
             <div className="grid gap-4 my-10">
                 <h3 className="text-gray-900 text-base lg:text-lg">Making Moves and Flipping Pieces</h3>
-                <p className="text-gray-600 text-sm lg:text-base">
-                    <ul className="list-disc">
-                        <li>
-                            Players take turns placing their pieces on empty squares. When placing a piece, it must trap
-                            opponent’s pieces between two of your pieces, either horizontally, vertically, or
-                            diagonally.
-                        </li>
-                        <li>
-                            Trapped opponent pieces are flipped to your color.
-                        </li>
-                    </ul>
-                </p>
+                <ul className="list-disc text-gray-600 text-sm lg:text-base">
+                    <li>
+                        Players take turns placing their pieces on empty squares. When placing a piece, it must trap
+                        opponent’s pieces between two of your pieces, either horizontally, vertically, or
+                        diagonally.
+                    </li>
+                    <li>
+                        Trapped opponent pieces are flipped to your color.
+                    </li>
+                </ul>
                 <div className="grid place-items-center">
                     <div className="flex gap-4">
                         <Image src="/how-to-play/screenshot-3.png"
