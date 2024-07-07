@@ -17,9 +17,10 @@ export default function HowToPlay() {
                 </p>
                 <Image src="/how-to-play/screenshot-1.png"
                        alt="Othello game board"
-                       width={400}
-                       height={400}
-                       className="mx-auto"/>
+                       width={396}
+                       height={396}
+                       className="w-96 h-96 mx-auto"  />
+
             </div>
 
             <div className="grid gap-4 my-10">
@@ -30,9 +31,9 @@ export default function HowToPlay() {
                 </p>
                 <Image src="/how-to-play/screenshot-2.png"
                        alt="Othello game board"
-                       width={400}
-                       height={400}
-                       className="mx-auto"/>
+                       width={396}
+                       height={396}
+                       className="w-96 h-96 mx-auto" />
             </div>
 
             <div className="grid gap-4 my-10">
@@ -51,12 +52,14 @@ export default function HowToPlay() {
                     <div className="flex gap-4">
                         <Image src="/how-to-play/screenshot-3.png"
                                alt="Making Moves and Flipping Pieces"
-                               width={400}
-                               height={400}/>
+                               width={396}
+                               height={396}
+                               className="w-96 h-96" />
                         <Image src="/how-to-play/screenshot-4.png"
                                alt="Making Moves and Flipping Pieces"
-                               width={400}
-                               height={400}/>
+                               width={396}
+                               height={396}
+                               className="w-96 h-96" />
                     </div>
                     <p className="mt-1 text-gray-600 text-xs lg:text-sm">
                         An example showing a piece being placed and how opponent pieces are flipped. (With black’s turn,
@@ -82,9 +85,9 @@ export default function HowToPlay() {
                 </p>
                 <Image src="/how-to-play/screenshot-5.png"
                        alt="Othello game board"
-                       width={400}
-                       height={400}
-                       className="mx-auto"/>
+                       width={396}
+                       height={396}
+                       className="w-96 h-96 mx-auto" />
             </div>
 
         </section>
