@@ -15,9 +15,11 @@ export default function BoardOptions() {
     }
 
     const handleExit = () => {
-        updateGame(null);
-        updateBoard([]);
         router.push("/")
+        setTimeout(() => {
+            updateGame(null);
+            updateBoard([]);
+        }, 10)
     }
 
     return (
