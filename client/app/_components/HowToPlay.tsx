@@ -19,7 +19,7 @@ export default function HowToPlay() {
                        alt="Othello game board"
                        width={396}
                        height={396}
-                       className="w-96 h-96 mx-auto"  />
+                       className="aspect-square	 mx-auto"  />
 
             </div>
 
@@ -33,7 +33,7 @@ export default function HowToPlay() {
                        alt="Othello game board"
                        width={396}
                        height={396}
-                       className="w-96 h-96 mx-auto" />
+                       className="aspect-square	 mx-auto" />
             </div>
 
             <div className="grid gap-4 my-10">
@@ -49,17 +49,17 @@ export default function HowToPlay() {
                     </li>
                 </ul>
                 <div className="grid place-items-center">
-                    <div className="flex gap-4">
+                    <div className="flex flex-col md:flex-row gap-4">
                         <Image src="/how-to-play/screenshot-3.png"
                                alt="Making Moves and Flipping Pieces"
                                width={396}
                                height={396}
-                               className="w-96 h-96" />
+                               className="aspect-square" />
                         <Image src="/how-to-play/screenshot-4.png"
                                alt="Making Moves and Flipping Pieces"
                                width={396}
                                height={396}
-                               className="w-96 h-96" />
+                               className="aspect-square" />
                     </div>
                     <p className="mt-1 text-gray-600 text-xs lg:text-sm">
                         An example showing a piece being placed and how opponent pieces are flipped. (With black’s turn,
@@ -87,7 +87,7 @@ export default function HowToPlay() {
                        alt="Othello game board"
                        width={396}
                        height={396}
-                       className="w-96 h-96 mx-auto" />
+                       className="aspect-square	 mx-auto" />
             </div>
 
         </section>
