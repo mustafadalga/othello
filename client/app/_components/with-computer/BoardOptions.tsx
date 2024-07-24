@@ -1,20 +1,22 @@
 import { useRouter } from "next/navigation";
 import usePlayWithComputerStore from "@/_store/usePlayWithComputerStore";
-import { INITIAL_GAME_WITH_COMPUTER } from "@/_constants";
+import createBoard from "@/_utilities/createBoard";
+import getInitialGameWithComputer from "@/_utilities/getInitialGameWithComputer";
 
 
 export default function BoardOptions() {
     const router = useRouter();
-    const { updateGame, updateMoves } = usePlayWithComputerStore();
+    const { updateGame, updateBoard } = usePlayWithComputerStore();
 
 
     const handleRestart = () => {
-        updateGame(INITIAL_GAME_WITH_COMPUTER);
+        updateGame(getInitialGameWithComputer());
+        updateBoard(createBoard());
     }
 
     const handleExit = () => {
         updateGame(null);
-        updateMoves([]);
+        updateBoard([]);
         router.push("/")
     }
 

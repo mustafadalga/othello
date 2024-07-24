@@ -12,9 +12,9 @@ export interface IGame {
     gamers: IGamer[]
     isGameFinished: boolean
     isGameStarted: boolean
-    moveOrder: string
-    winnerGamer: string
-    exitGamer: string
+    moveOrder: string | null
+    winnerGamer: string | null
+    exitGamer: string | null
 }
 
 export interface IMove {

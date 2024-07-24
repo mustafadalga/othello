@@ -4,15 +4,15 @@ import { IGame, IMove } from "@/_types";
 
 interface Store {
     game: IGame | null,
-    moves: IMove[],
+    board: IMove[],
     updateGame: (game: IGame | null) => void;
-    updateMoves: (moves: IMove[]) => void;
+    updateBoard: (moves: IMove[]) => void;
 }
 
 export default create(devtools<Store>((set) => ({
     game: null,
-    moves: [],
+    board: [],
     updateGame: (game) => set({ game }),
-    updateMoves: (moves) => set({ moves }),
+    updateBoard: (board) => set({ board }),
 })));
 

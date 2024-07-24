@@ -1,7 +1,8 @@
 "use client";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { CREATE_GAME } from "@/_graphql/mutations";
 import { useMutation } from "@apollo/client";
-import Link from "next/link";
 import useLoader from "@/_store/useLoader";
 import graphQLError from "@/_utilities/graphQLError";
 import ClipBoardURL from "@/_components/ClipBoardURL";
@@ -18,12 +19,17 @@ interface AddTodoVariables {
 }
 
 export default function CreateGame() {
+    const router = useRouter()
     const [ createGame, { data, loading, error } ] = useMutation<AddTodoResponse, AddTodoVariables>(CREATE_GAME);
     const roomURL: string = `${process.env.NEXT_PUBLIC_SITE_URL}/room/${data?.game?._id}`;
     const playAgainstComputer: boolean = data?.game?.playAgainstComputer || false;
     const { onOpen, onClose } = useLoader()
 
     const handleCreateGame = (playAgainstComputer: boolean) => {
+        if (playAgainstComputer) {
+            return router.push("/with-computer");
+        }
+
         onOpen();
         createGame({
             variables: {
