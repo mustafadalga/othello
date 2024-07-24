@@ -39,6 +39,7 @@ const config: Config = {
         extend: {
             animation: {
                 rotation: 'rotation 1s linear infinite',
+                "dot-pulse": "dotPulse 2s linear infinite"
             },
             keyframes: {
                 rotation: {
@@ -47,6 +48,24 @@ const config: Config = {
                     },
                     '100%': {
                         transform: 'rotate(360deg)',
+                    },
+                },
+                // resource: https://cssloaders.github.io/
+                dotPulse: {
+                    '0%': {
+                        boxShadow: '14px 0 0 -2px, 38px 0 0 -2px, -14px 0 0 -2px, -38px 0 0 -2px',
+                    },
+                    '25%': {
+                        boxShadow: '14px 0 0 -2px, 38px 0 0 -2px, -14px 0 0 -2px, -38px 0 0 2px',
+                    },
+                    '50%': {
+                        boxShadow: '14px 0 0 -2px, 38px 0 0 -2px, -14px 0 0 2px, -38px 0 0 -2px',
+                    },
+                    '75%': {
+                        boxShadow: '14px 0 0 2px, 38px 0 0 -2px, -14px 0 0 -2px, -38px 0 0 -2px',
+                    },
+                    '100%': {
+                        boxShadow: '14px 0 0 -2px, 38px 0 0 2px, -14px 0 0 -2px, -38px 0 0 -2px',
                     },
                 },
             }
