@@ -30,7 +30,7 @@ export default forwardRef<HTMLDivElement, Props>(function Cell({ stone, hasHint,
     return (
         <div onClick={handleClick}
              ref={ref}
-             className="relative bg-gradient-to-r from-[#038947] via-[#03A454] to-[#04D46C] grid place-items-center rounded w-6 h-6 min-[320px]:w-8 min-[320px]:h-8 min-[400px]:w-10 min-[400px]:h-10 min-[480px]:w-12 min-[480px]:h-12 min-[600px]:w-16 min-[600px]:h-16 min-[720px]:w-[72px] min-[720px]:h-[72px] group">
+             className="relative bg-gradient-to-r from-[#038947] via-[#03A454] to-[#04D46C] grid place-items-center rounded w-6 h-6 min-[300px]:w-8 min-[300px]:h-8 min-[320px]:w-[2.25rem] min-[320px]:h-[2.25rem] min-[400px]:w-10 min-[400px]:h-10 min-[480px]:w-12 min-[480px]:h-12 min-[600px]:w-16 min-[600px]:h-16 min-[720px]:w-[72px] min-[720px]:h-[72px] group">
 
             {stone.gamer && <Stone gamer={stone.gamer}/>}
 
