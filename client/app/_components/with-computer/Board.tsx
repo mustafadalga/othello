@@ -34,7 +34,7 @@ export default function Board() {
     const winnerGamerColor: EGamer | null = game?.winnerGamer ? game.gamers.find(gamer => gamer.id == game.winnerGamer)?.color || null : null;
 
     const handlePlayAsComputer = useCallback(async () => {
-        await new Promise(resolve => setTimeout(resolve, 0));
+        await new Promise(resolve => setTimeout(resolve, 1000));
         const randomIndex: number = Math.floor(Math.random() * hints.length);
         const hintIndex: number = hints[randomIndex];
         cellRefs.current[hintIndex]?.click()
@@ -148,7 +148,7 @@ export default function Board() {
     }, [ activeMoveOrder ]);
 
 
-    // Handle game finish if all stone are reversed or game is finished
+    // Handle game finish if all stones are reversed or the game is finished
     useEffect(() => {
         if (isAllStoneReversed(board) || game?.isGameFinished) {
             handleGameFinish()
