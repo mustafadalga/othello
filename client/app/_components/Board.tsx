@@ -12,6 +12,7 @@ import { GAME_MOVED, GAME_UPDATED } from "@/_graphql/subscriptions";
 import getActiveGamerData, { IActiveGamerData } from "@/_utilities/getActiveGamerData";
 import useDeepCompareMemoize from "@/_hooks/useDeepCompareMemoize";
 import useGameResultModal from "@/_store/useGameResultModal";
+import isAllStoneReversed from "@/_utilities/isAllStoneReversed";
 import { EGamer, ELocalStorage } from "@/_enums";
 import {
     IGame,
@@ -30,7 +31,7 @@ export default function Board() {
     const [ game, setGame ] = useState<IGame>()
     const { onOpen } = useGameResultModal()
     const [ board, setBoard ] = useState<IMove[]>(createBoard);
-    const [ isHintClicked, setIsHintClicked ] = useState<boolean>(false)
+    const [ clickedHint, setClickedHint ] = useState<IMove | null>(null);
     const memoizedGame = useDeepCompareMemoize<IGame>(game as IGame);
     const activeMoveOrder = useDeepCompareMemoize<IActiveGamerData>(getActiveGamerData(game as IGame));
     const opponent = activeMoveOrder.gamer.color == EGamer.BLACK ? EGamer.WHITE : EGamer.BLACK;
@@ -39,6 +40,7 @@ export default function Board() {
     const hasValidMove: boolean = !!hints.length;
     const winnerGamer: EGamer | null = game?.winnerGamer ? game.gamers.find(gamer => gamer.id == game.winnerGamer)?.color || null : null;
     const gamerColor: EGamer | null = game ? game?.gamers.find(gamer => gamer.id == localStorage.getItem(ELocalStorage.USERID))?.color || null : null;
+    const allStoneReversed: boolean = isAllStoneReversed(board);
 
     useQuery<{ game: IGame }>(GET_GAME_BY_ID, {
         variables: {
@@ -84,6 +86,8 @@ export default function Board() {
         onData: ({ data: { data } }) => {
             if (data?.game) {
                 setGame(data.game);
+                setClickedHint(null);
+
                 if (data.game.isGameFinished) {
                     onOpen();
                 }
@@ -116,7 +120,8 @@ export default function Board() {
     });
 
     const handleHint = useCallback(async (move: IMove) => {
-        if (isHintClicked) return;
+        if (clickedHint) return;
+
         if (!memoizedGame?.isGameStarted) {
             return toast.info("Game has not started yet!");
         }
@@ -141,21 +146,23 @@ export default function Board() {
             })))
         ];
 
-        setIsHintClicked(true);
+        setClickedHint(move);
         createMove({
             variables: {
                 moves
             }
         });
 
-    }, [ memoizedGame, board, activeMoveOrder, isHintClicked ]);
-
+    }, [ memoizedGame, board, activeMoveOrder, clickedHint ]);
 
     // handle no valid move and consecutive moves
     useEffect(() => {
         if (!(memoizedGame?.isGameStarted == true &&
                 memoizedGame?.isGameFinished == false)
-            || !activeMoveOrder.isYourTurn || hasValidMove) return;
+            || !activeMoveOrder.isYourTurn ||
+            hasValidMove ||
+            allStoneReversed) return;
+
         const updatedGamers = memoizedGame.gamers.map(gamer => {
             if (gamer.id == activeMoveOrder.gamer.id) {
                 return {
@@ -199,20 +206,16 @@ export default function Board() {
             })
         }
 
-    }, [ memoizedGame, activeMoveOrder, hasValidMove ])
-
-    // set to initial state
-    useEffect(() => {
-        setIsHintClicked(false);
-    }, [ activeMoveOrder ])
+    }, [ memoizedGame, activeMoveOrder, hasValidMove, allStoneReversed ])
 
     return (
         <section
-            className={`${isHintClicked ? 'pointer-events-none' : ''} relative grid grid-cols-8 grid-rows-8 gap-0.5 sm:gap-1 bg-white`}>
+            className="relative grid grid-cols-8 grid-rows-8 gap-0.5 sm:gap-1 bg-white">
             {board.map((cell, index) => <Cell key={`${cell.row}${cell.col}`}
                                               onClick={handleHint}
                                               hasHint={hints.includes(index)}
                                               stone={cell}
+                                              clickedHint={clickedHint}
                                               activeGamer={activeMoveOrder.gamer.color}/>)}
 
             {game?.isGameFinished && !game.exitGamer &&
