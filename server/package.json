@@ -5,7 +5,6 @@
   "main": "index.js",
   "scripts": {
     "dev": "NODE_ENV=development npm run setupAliases && nodemon --exec ts-node src/index.ts",
-    "kill": "kill -9 $(lsof -t -i tcp:4000-4002)",
     "build": "npm i && tsc",
     "start": "NODE_ENV=production npm run setupAliases && node dist/index.js",
     "setupAliases": "node setupAliases.js"

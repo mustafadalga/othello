@@ -7,7 +7,6 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "kill": "kill -9 $(lsof -t -i tcp:3000-3010)"
   },
   "dependencies": {
     "@apollo/client": "^3.10.4",
