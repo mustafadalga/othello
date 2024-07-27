@@ -20,10 +20,8 @@ export default function Board() {
     const { game, board, updateGame, updateBoard } = usePlayWithComputerStore();
     const { onOpen } = useGameResultModal()
 
-    /**
-     * This state will be used to hint animation
-     */
-    const [ isHintClicked, setIsHintClicked ] = useState<boolean>(false)
+
+    const [ clickedHint, setClickedHint ] = useState<IMove | null>(null);
     const cellRefs = useRef<(HTMLDivElement | null)[]>([]);
     const activeMoveOrder = useDeepCompareMemoize<IActiveGamerData>(getActiveGamerData(game as IGame));
     const opponent: EGamer = activeMoveOrder.gamer.color == EGamer.BLACK ? EGamer.WHITE : EGamer.BLACK;
@@ -41,7 +39,7 @@ export default function Board() {
     }, [ hints ]);
 
     const handleHint = useCallback(async (move: IMove) => {
-        if (isHintClicked) return;
+        if (clickedHint) return;
         if (!game?.isGameStarted) {
             return toast.info("Game has not started yet!");
         }
@@ -60,7 +58,7 @@ export default function Board() {
                 gamer: activeMoveOrder.gamer.color,
             })))
         ];
-        setIsHintClicked(true);
+        setClickedHint(move);
 
         setTimeout(() => {
             updateBoard(board.map(cell => {
@@ -74,7 +72,7 @@ export default function Board() {
             });
         }, 500);// set timeout is for hint animation
 
-    }, [ game, board, activeMoveOrder, isHintClicked ]);
+    }, [ game, board, activeMoveOrder, clickedHint ]);
 
     const handleGameFinish = useCallback(() => {
         const winnerGamer: string | null = getWinnerGamer(game as IGame, board);
@@ -142,9 +140,9 @@ export default function Board() {
         }
     }, [ isComputerTurn, board, game?.isGameStarted ]);
 
-    // set to initial state when component unmount
+    // set to initial state when active move order change
     useEffect(() => {
-        setIsHintClicked(false);
+        setClickedHint(null);
     }, [ activeMoveOrder ]);
 
 
@@ -158,12 +156,13 @@ export default function Board() {
 
     return (
         <section
-            className={`${isHintClicked ? 'pointer-events-none' : ''} relative grid grid-cols-8 grid-rows-8 gap-0.5 sm:gap-1 bg-white`}>
+            className="relative grid grid-cols-8 grid-rows-8 gap-0.5 sm:gap-1 bg-white">
             {board.map((cell, index) => <Cell key={`${cell.row}${cell.col}`}
                                               onClick={handleHint}
                                               hasHint={hints.includes(index)}
                                               stone={cell}
                                               activeGamer={activeMoveOrder.gamer.color}
+                                              clickedHint={clickedHint}
                                               ref={(element: HTMLDivElement) => {
                                                   cellRefs.current[index] = element
                                               }}/>)}
