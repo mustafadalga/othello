@@ -157,11 +157,11 @@ export default function Board() {
 
     // handle no valid move and consecutive moves
     useEffect(() => {
-        if (!(memoizedGame?.isGameStarted == true &&
-                memoizedGame?.isGameFinished == false)
-            || !activeMoveOrder.isYourTurn ||
-            hasValidMove ||
-            allStoneReversed) return;
+        const gameNotStartedOrFinished = !(memoizedGame?.isGameStarted == true && memoizedGame?.isGameFinished == false);
+
+        if (gameNotStartedOrFinished || !activeMoveOrder.isYourTurn || hasValidMove || allStoneReversed || clickedHint) {
+            return
+        }
 
         const updatedGamers = memoizedGame.gamers.map(gamer => {
             if (gamer.id == activeMoveOrder.gamer.id) {
@@ -191,7 +191,6 @@ export default function Board() {
                 toastId: "consecutiveNoMove"
             })
         } else if (!hasValidMove) {
-
             updateGame({
                 variables: {
                     data: {
@@ -206,7 +205,7 @@ export default function Board() {
             })
         }
 
-    }, [ memoizedGame, activeMoveOrder, hasValidMove, allStoneReversed ])
+    }, [ memoizedGame, activeMoveOrder, hasValidMove, allStoneReversed, clickedHint ])
 
     return (
         <section
